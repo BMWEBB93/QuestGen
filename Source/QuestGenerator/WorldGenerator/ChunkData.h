@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include  "LocationType.h"
+#include "LocationType.h"
 #include "NeighbourDirections.h"
 #include "Town.h"
 #include "ChunkData.generated.h"
@@ -45,6 +45,9 @@ struct QUESTGENERATOR_API FChunkData
 	
 	UPROPERTY()
 	bool bHasTown = false;
+	
+	UPROPERTY()
+	bool bTownIsSpawned = false;
 	
 	// Neighbouring locations
 	

@@ -290,17 +290,39 @@ public:
 	UFUNCTION()
 	void SpawnTown(FChunkData& Data);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	UFUNCTION()
+	void DespawnTown(FChunkData& Data);
+	
+	
+	UFUNCTION()
+	void SetTownData();
+	
+	
+	// array of town data
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Towns")
 	TArray<FTown> Towns;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	// array of town generator
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Towns")
 	TArray<ATownGenerator*> TownGenerators;
 	
-	UPROPERTY(EditAnywhere, Category = "Towns")
+	// town generator class to be spawned on town positions
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	TSubclassOf<ATownGenerator> TownGeneratorClass;
+	
+	// array of buildings to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TArray<TSubclassOf<AActor>> BuildingClasses;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TArray<UStaticMesh*> PropMeshes;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	int TownsCount = 3;
+	
+	
+	UPROPERTY(EditAnywhere, Category = "Towns")
+	float VillagePlatformHeight = 200.f;	
 	
 	////////////////////////////
 	/// River settings

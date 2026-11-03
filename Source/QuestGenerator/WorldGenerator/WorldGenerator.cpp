@@ -97,6 +97,10 @@ void AWorldGenerator::Tick(float DeltaTime)
 				if (data)
 				{
 					PendingChunkRebuilds[0]->CreateFoliage(*data);
+					if (data->bHasTown && !data->bTownIsSpawned)
+					{
+						SpawnTown(*data);
+					}
 				}
 				
 				// update location data in chunk
@@ -896,6 +900,7 @@ void AWorldGenerator::FindTownLocations()
 					continue;
 				}
 				
+				
 				// skip locations already occupied
 				bool bLocationOccupied = false;
 				for (FTown town : Towns)
@@ -914,6 +919,12 @@ void AWorldGenerator::FindTownLocations()
 				int ChunkScore = 0;
 				int CoastCount = 0;
 			
+				if (Chunk->Location == ELocationType::Grassland)
+				{
+					ChunkScore += 2;	
+				}
+				
+				
 				// loop through chunk neighbours and increment based on biomes
 				for (const TPair<ENeighbourDirections, ELocationType>& Neighbour : Chunk->NeighbourChunks)
 				{
@@ -923,9 +934,9 @@ void AWorldGenerator::FindTownLocations()
 						CoastCount += 1;
 					}
 				}
-				if (CoastCount > 1 && CoastCount < 3)
+				if (CoastCount > 1 && CoastCount < 4)
 				{
-					ChunkScore += 1;
+					ChunkScore += 10;
 				}
 				
 				// check chunk borders river
@@ -936,7 +947,7 @@ void AWorldGenerator::FindTownLocations()
 						if (PositionOnRiver(Chunk->WorldCoord + FIntPoint(a, b)))
 						{
 							if (a == 0 && b == 0) continue; // skip middle chunk
-							ChunkScore += 3;
+							ChunkScore += 2;
 						}
 					}
 				}
@@ -956,8 +967,8 @@ void AWorldGenerator::FindTownLocations()
 				}			
 
 				// Reduce score if close to another town
-				int ScoreAdjustment = FMath::Clamp(ClosestTown, 0 , 10);
-				ChunkScore += ScoreAdjustment;
+				int ScoreAdjustment = FMath::Clamp(ClosestTown, 0 , 15);
+				ChunkScore += ScoreAdjustment  *3;
 			
 				// store best chunk score and river source coordinate
 				if (ChunkScore > BestScore)
@@ -982,25 +993,8 @@ void AWorldGenerator::FindTownLocations()
 
 void AWorldGenerator::GenerateWorld()
 {
-	// Delete current chunks
-	for (auto& Pair : ChunkVisualisers)
-	{
-		if (IsValid(Pair.Value))
-		{
-			Pair.Value->Destroy();
-		}
-	}
-	ChunkVisualisers.Empty();
 	
-	// Delete current ocean chunks
-	for (auto& Pair : OceanChunks)
-	{
-		if (IsValid(Pair.Value))
-		{
-			Pair.Value->Destroy();
-		}
-	}
-	OceanChunks.Empty();
+	ClearWorld();
 	
 	// Ensure resolution is 32, 64, 128 ect.
 	ChunkResolution = FMath::Max(ChunkResolution, 1);
@@ -1071,6 +1065,8 @@ void AWorldGenerator::GenerateWorld()
 	
 	// find locations for towns
 	FindTownLocations();
+	
+	
 	
 	// generate height map
 	for (int y = 0; y < WorldSize; y++)
@@ -1169,9 +1165,10 @@ void AWorldGenerator::GenerateWorld()
 			// Generate mesh with terrain data
 			Chunk->GenerateChunk(Data, TerrainMaterial, LODBoundary, BeachValue);
 			Chunk->CreateFoliage(*Data);
-			if (Data->bHasTown)
+			// create the town
+			if (Data->bHasTown && !Data->bTownIsSpawned)
 			{
-				
+				SpawnTown(*Data);
 			}
 		}
 	}	
@@ -1215,6 +1212,28 @@ void AWorldGenerator::GenerateWorld()
 
 void AWorldGenerator::ClearWorld()
 {
+	// Destroy all spawned town actors
+	for (ATownGenerator* Town : TownGenerators)
+	{
+		if (IsValid(Town))
+		{
+			// Find the chunk data
+			FChunkData* Data = ChunkData.Find(Town->TownData.WorldPosition);
+
+			if (Data)
+			{
+				// Save the town data
+				Data->Town = Town->TownData;
+				Data->bTownIsSpawned = false;
+			}
+
+			Town->Destroy();
+		}
+	}
+	
+	TownGenerators.Empty();
+	Towns.Empty();
+	
 	// Delete current chunks
 	for (auto& Pair : ChunkVisualisers)
 	{
@@ -1223,7 +1242,7 @@ void AWorldGenerator::ClearWorld()
 			Pair.Value->Destroy();
 		}
 	}
-	ChunkVisualisers.Empty();
+	ChunkVisualisers.Empty();	
 	
 	// Delete current ocean chunks
 	for (auto& Pair : OceanChunks)
@@ -1297,6 +1316,8 @@ void AWorldGenerator::GenerateMapData(FChunkData& chunkData)
 	int VertexCount = ChunkResolution + 1;
 
 	chunkData.Heights.Init(0.f, VertexCount * VertexCount); // Sets size of heightmap
+	
+	
 	
 	for (int y = 0; y <= ChunkResolution; y++)
 	{
@@ -1654,7 +1675,44 @@ void AWorldGenerator::GenerateMapData(FChunkData& chunkData)
 					break;
 				}
 			
-			}			
+			}		
+			
+			if (chunkData.bHasTown)
+			{
+				// get ratio to determine proximity of other chunks
+				float NorthRatio = (float)y / ChunkResolution;
+				float SouthRatio = 1.f - NorthRatio;
+				float EastRatio = (float)x / ChunkResolution;
+				float WestRatio = 1.f - EastRatio;
+					
+				float NorthEastRatio = NorthRatio * EastRatio;
+				float SouthEastRatio = SouthRatio * EastRatio;
+				float NorthWestRatio = NorthRatio * WestRatio;
+				float SouthWestRatio = SouthRatio * WestRatio;
+				
+				// get the closest neighbour ratio
+				float TownRatio = 0.f;
+				TownRatio = FMath::Max(NorthRatio, TownRatio);
+				TownRatio = FMath::Max(EastRatio, TownRatio);
+				TownRatio = FMath::Max(SouthRatio, TownRatio);
+				TownRatio = FMath::Max(WestRatio, TownRatio);
+				TownRatio = FMath::Max(NorthEastRatio, TownRatio);
+				TownRatio = FMath::Max(SouthEastRatio, TownRatio);
+				TownRatio = FMath::Max(NorthWestRatio, TownRatio);
+				TownRatio = FMath::Max(SouthWestRatio, TownRatio);			
+					
+				// create ratio to represent the town, 1 is the centre 0 is the edge
+				float BlendRatio = FMath::Clamp((1 - TownRatio) * 4.f , 0.f, 1.f);
+				
+				// get the height of the chunk
+				float Originalheight = chunkData.Heights[Index];
+			
+				// create a platform for the village
+				float Height = FMath::Lerp(Originalheight, VillagePlatformHeight, BlendRatio);
+							
+				// set height in the chunk data heightmap
+				chunkData.Heights[Index] = Height;
+			}
 		}
 	}
 
@@ -1938,6 +1996,18 @@ void AWorldGenerator::ShiftLandChunks(FIntPoint Direction)
 		
 		if (bWrapChunk) // if chunk is moved to other side of chunks
 		{
+			// get the chunk data
+			FChunkData* Data = ChunkData.Find(Chunk->WorldCoord);
+			if (Data)
+			{
+				// Remove any towns			
+				if (Data->bHasTown && Data->bTownIsSpawned)
+				{
+					DespawnTown(*Data);
+				}
+			}
+		
+			
 			// move chunk to new edge
 			FVector NewLocation =
 				Chunk->GetActorLocation() +
@@ -1965,7 +2035,7 @@ void AWorldGenerator::ShiftLandChunks(FIntPoint Direction)
 			{
 				Chunk->Mesh->ClearMeshSection(0);	
 				Chunk->ClearFoliage();
-			}
+			}		
 		}
 		else // chunk didn't move 
 		{
@@ -2170,15 +2240,18 @@ float AWorldGenerator::GetHeightAtLocation(float WorldX, float WorldY)
 
 ELocationType AWorldGenerator::GetChunkBiomeAtLocation(float WorldX, float WorldY)
 {
+	// get the size of a chunk (length of 1 axis)
 	ChunkSize = ChunkScale * ChunkResolution;
 
 	// Convert world position to chunk coordinate
 	int ChunkX = FMath::FloorToInt(WorldX / ChunkSize);
 	int ChunkY = FMath::FloorToInt(WorldY / ChunkSize);
 
+	// find the chunk data
 	FIntPoint ChunkCoord(ChunkX, ChunkY);	
 	FChunkData* Chunk = ChunkData.Find(ChunkCoord);
 
+	// if data is out of world bounds, must be ocean
 	if (!Chunk)
 	{
 		return ELocationType::Ocean;
@@ -2188,15 +2261,138 @@ ELocationType AWorldGenerator::GetChunkBiomeAtLocation(float WorldX, float World
 
 void AWorldGenerator::SpawnTown(FChunkData& Data)
 {
+	
+
+	
+	// if generator class isn't set return
 	if (!TownGeneratorClass) return;
 	
-	FVector WorldLocation = FVector(Data.WorldCoord.X * ChunkSize,Data.WorldCoord.Y * ChunkSize,0 );
+	ChunkSize = ChunkScale * ChunkResolution;
 	
+	// get the location of the chunk
+	FVector WorldLocation = (
+		FVector(Data.WorldCoord.X * ChunkSize,Data.WorldCoord.Y * ChunkSize,0 ) 
+	);
+	
+	// spawn the town
 	ATownGenerator* TownGenerator = GetWorld()->SpawnActor<ATownGenerator>(
 	   TownGeneratorClass,
 	   WorldLocation,
 	   FRotator::ZeroRotator
    );
+	
+	// add data to the town 
+	TownGenerator->TownData = Data.Town;
+	TownGenerator->ChunkData = Data;
+	
+	// set the building actors in the town
+	TownGenerator->BuildingClasses = BuildingClasses;
+	TownGenerator->PropMeshes = PropMeshes;
+	TownGenerator->TownHeight = VillagePlatformHeight;
+	
+	
+	// update bool in chunk data
+	Data.bTownIsSpawned = true;
+	
+	// set bool in generator so generation begins
+	TownGenerator->bIsDataValid = true;
+	
+	// add town generator to array
+	TownGenerators.Add(TownGenerator);
+	
+	
+	
+
 }
+
+void AWorldGenerator::DespawnTown(FChunkData& Data)
+{
+	// get the world coordinate of the town
+	FIntPoint ChunkCoord = Data.WorldCoord;
+	
+	ATownGenerator* TownGenerator = nullptr;
+	// loop through all towns to find the one in data
+	for (ATownGenerator* Town : TownGenerators)
+	{
+		if (Town->TownData.WorldPosition == ChunkCoord) // find town from data 
+		{
+			TownGenerator = Town; 
+			break;
+		}
+	}
+	// if the town generator isnt found return
+	if (TownGenerator == nullptr) return;
+	
+	// save the town data to chunk data
+	Data.Town = TownGenerator->TownData;
+	
+	// update bool in chunk data
+	Data.bTownIsSpawned = false;
+	
+	// destroy town generator and remove from array
+	TownGenerator->Destroy();
+	TownGenerators.Remove(TownGenerator);
+	
+
+}
+
+void AWorldGenerator::SetTownData()
+{	
+	// get the total amount of building variations 
+	int MaxBuildingTypes = BuildingClasses.Num();
+	
+	for (FTown& Town : Towns)
+	{
+		int TownSeed = HashCombine(
+			GetTypeHash(Seed),
+			HashCombine(
+				GetTypeHash(Town.WorldPosition.X),
+				GetTypeHash(Town.WorldPosition.Y)
+			)
+		);
+
+		FRandomStream RandomStream(TownSeed);		
+		
+		int BuildingSlots = RandomStream.RandRange(5, 8);
+		
+		Town.BuildingCount = BuildingSlots;
+		
+		// create an array of valid building types
+		TArray<int> ValidBuildingTypes;
+		for (int i = 0; i < MaxBuildingTypes; i++)
+		{
+			ValidBuildingTypes.Add(i);
+		}
+		
+		// randomly pick different buildings
+		for (int i =0 ; i < BuildingSlots; i++)
+		{
+			int BuildingIndex = RandomStream.RandRange(0, ValidBuildingTypes.Num() - 1);
+			Town.Buildings.Add(i, ValidBuildingTypes[BuildingIndex]);
+			ValidBuildingTypes.Remove(BuildingIndex);
+		}		
+		
+		
+		// place buildings in a circle
+		float Radius = 2000.f;
+		int BuildingCount = Town.BuildingCount;
+		for (int i = 0; i < BuildingCount; i++)
+		{
+			float Angle = (2.f * PI * i) / BuildingCount;
+
+			float X = FMath::Cos(Angle) * Radius;
+			float Y = FMath::Sin(Angle) * Radius;
+
+			FVector BuildingPosition(
+				X,
+				Y,
+				0.f
+			);
+			Town.BuildingsLocations.Add(i, BuildingPosition);
+		}
+	}
+}
+
+
 
 

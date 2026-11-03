@@ -15,9 +15,9 @@ struct QUESTGENERATOR_API FNeighbourChunk
 	GENERATED_BODY()
 	
 	UPROPERTY()
-	ENeighbourDirections Direction;
+	ENeighbourDirections Direction = ENeighbourDirections::N;
 	
 	UPROPERTY()
-	ELocationType Location;
+	ELocationType Location = ELocationType::NONE;
 	
 };

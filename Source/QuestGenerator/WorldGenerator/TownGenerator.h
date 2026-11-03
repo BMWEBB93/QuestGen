@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Town.h"
+#include  "ChunkData.h"
 #include "TownGenerator.generated.h"
 
 UCLASS()
@@ -24,8 +25,23 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
+	UPROPERTY(EditAnywhere)
+	FChunkData ChunkData;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FTown TownData;
+	
+	UPROPERTY()
+	float TownHeight;
+	
+	// array of buildings to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Town")
+	TArray<TSubclassOf<AActor>> BuildingClasses;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TArray<UStaticMesh*> PropMeshes;
+	
+	
+	bool bTownSpawned = false;
+	bool bIsDataValid = false;
 };

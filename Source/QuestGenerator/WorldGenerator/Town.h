@@ -13,6 +13,17 @@ struct QUESTGENERATOR_API FTown
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FIntPoint WorldPosition;
+	FIntPoint WorldPosition = FIntPoint(0, 0);
+
+	
+	
+	UPROPERTY()
+	int BuildingCount = 1;
+	
+	UPROPERTY()
+	TMap<int, int> Buildings; // building slot, building index
+	
+	UPROPERTY()
+	TMap<int, FVector> BuildingsLocations; // building slot, building location
 	
 };
