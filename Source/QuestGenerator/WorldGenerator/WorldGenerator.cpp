@@ -1066,7 +1066,7 @@ void AWorldGenerator::GenerateWorld()
 	// find locations for towns
 	FindTownLocations();
 	
-	
+	SetTownData();
 	
 	// generate height map
 	for (int y = 0; y < WorldSize; y++)
@@ -1225,9 +1225,9 @@ void AWorldGenerator::ClearWorld()
 				// Save the town data
 				Data->Town = Town->TownData;
 				Data->bTownIsSpawned = false;
-			}
-
-			Town->Destroy();
+				
+				DespawnTown(*Data);
+			}			
 		}
 	}
 	
@@ -2289,19 +2289,18 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	TownGenerator->BuildingClasses = BuildingClasses;
 	TownGenerator->PropMeshes = PropMeshes;
 	TownGenerator->TownHeight = VillagePlatformHeight;
+	TownGenerator->ChunkSize = ChunkSize;
 	
 	
 	// update bool in chunk data
 	Data.bTownIsSpawned = true;
 	
-	// set bool in generator so generation begins
-	TownGenerator->bIsDataValid = true;
 	
 	// add town generator to array
 	TownGenerators.Add(TownGenerator);
 	
 	
-	
+	TownGenerator->CreateTown();
 
 }
 
@@ -2330,6 +2329,7 @@ void AWorldGenerator::DespawnTown(FChunkData& Data)
 	Data.bTownIsSpawned = false;
 	
 	// destroy town generator and remove from array
+	TownGenerator->ClearTown();
 	TownGenerator->Destroy();
 	TownGenerators.Remove(TownGenerator);
 	
@@ -2374,7 +2374,7 @@ void AWorldGenerator::SetTownData()
 		
 		
 		// place buildings in a circle
-		float Radius = 2000.f;
+		float Radius = 2500.f;
 		int BuildingCount = Town.BuildingCount;
 		for (int i = 0; i < BuildingCount; i++)
 		{
@@ -2388,7 +2388,17 @@ void AWorldGenerator::SetTownData()
 				Y,
 				0.f
 			);
+			
+			
 			Town.BuildingsLocations.Add(i, BuildingPosition);
+		}
+		
+		FChunkData* Data = ChunkData.Find(Town.WorldPosition);
+
+		if (Data)
+		{
+			Data->Town = Town;
+			Data->bHasTown = true;
 		}
 	}
 }

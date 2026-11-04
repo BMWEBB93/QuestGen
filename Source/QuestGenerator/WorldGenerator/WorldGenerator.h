@@ -48,7 +48,6 @@ public:
 	bool PositionOnRiver(FIntPoint Coord);
 	
 	
-	void FindTownLocations();
 
 	
 	
@@ -293,6 +292,7 @@ public:
 	UFUNCTION()
 	void DespawnTown(FChunkData& Data);
 	
+	void FindTownLocations();	
 	
 	UFUNCTION()
 	void SetTownData();

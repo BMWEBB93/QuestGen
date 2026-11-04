@@ -24,31 +24,21 @@ void ATownGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bTownSpawned && bIsDataValid)
+
+}
+
+void ATownGenerator::CreateTown()
+{
+	if (!bTownSpawned)
 	{
 		for (int i = 0; i < TownData.BuildingCount; i++)
 		{
 			int* BuildingIndex = TownData.Buildings.Find(i);
 			FVector* BuildingLocation = TownData.BuildingsLocations.Find(i);
-
-			// Check the map entries exist
-			if (!BuildingIndex || !BuildingLocation)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Missing building data for slot %d"), i);
-				continue;
-			}
-
-			// Check the building class exists
-			if (!BuildingClasses.IsValidIndex(*BuildingIndex) ||
-				!BuildingClasses[*BuildingIndex])
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Invalid building class for slot %d"), i);
-				continue;
-			}
-
+			
 			FVector SpawnLocation(
-				BuildingLocation->X,
-				BuildingLocation->Y,
+				BuildingLocation->X + TownData.WorldPosition.X * ChunkSize + ChunkSize / 2,
+				BuildingLocation->Y + TownData.WorldPosition.Y * ChunkSize + ChunkSize / 2,
 				TownHeight
 			);
 
@@ -65,9 +55,26 @@ void ATownGenerator::Tick(float DeltaTime)
 				FRotator::ZeroRotator,
 				SpawnParams
 			);
+			
+			Buildings.Add(SpawnedBuilding);
 		}
 
 		bTownSpawned = true;
 	}
 }
+
+void ATownGenerator::ClearTown()
+{
+	for (AActor* Building : Buildings)
+	{
+		if (Building)
+		{
+			Building->Destroy();
+		}
+		
+	}
+	Buildings.Empty();
+}
+
+
 

@@ -24,6 +24,13 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	
+	UFUNCTION()
+	void CreateTown();
+	
+	UFUNCTION()
+	void ClearTown();
 
 	UPROPERTY(EditAnywhere)
 	FChunkData ChunkData;
@@ -32,16 +39,22 @@ public:
 	FTown TownData;
 	
 	UPROPERTY()
+	float ChunkSize;
+	
+	UPROPERTY()
 	float TownHeight;
 	
 	// array of buildings to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Town")
 	TArray<TSubclassOf<AActor>> BuildingClasses;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<AActor*> Buildings;
+	
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	TArray<UStaticMesh*> PropMeshes;
 	
 	
 	bool bTownSpawned = false;
-	bool bIsDataValid = false;
 };
