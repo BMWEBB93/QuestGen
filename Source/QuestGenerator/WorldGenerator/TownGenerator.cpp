@@ -39,7 +39,7 @@ void ATownGenerator::CreateTown()
 			FVector SpawnLocation(
 				BuildingLocation->X + TownData.WorldPosition.X * ChunkSize + ChunkSize / 2,
 				BuildingLocation->Y + TownData.WorldPosition.Y * ChunkSize + ChunkSize / 2,
-				TownHeight
+				TownHeight - 10.f
 			);
 
 			UClass* BuildingClass = BuildingClasses[*BuildingIndex];

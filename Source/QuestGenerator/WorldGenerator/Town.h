@@ -18,12 +18,13 @@ struct QUESTGENERATOR_API FTown
 	
 	
 	UPROPERTY()
-	int BuildingCount = 1;
+	int BuildingCount = 5;
 	
 	UPROPERTY()
 	TMap<int, int> Buildings; // building slot, building index
 	
 	UPROPERTY()
 	TMap<int, FVector> BuildingsLocations; // building slot, building location
+	
 	
 };
