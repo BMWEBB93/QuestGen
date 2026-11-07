@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseCharacter.h"
+#include "QuestGenerator/BaseCharacter.h"
 #include "NPC.generated.h"
 
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class QUESTGENERATOR_API ANPC : public ABaseCharacter
 {
 	GENERATED_BODY()

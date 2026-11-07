@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "QuestGenerator/QuestSystem/Quest.h"
 #include "Town.generated.h"
 /**
  * 
@@ -26,5 +27,13 @@ struct QUESTGENERATOR_API FTown
 	UPROPERTY()
 	TMap<int, FVector> BuildingsLocations; // building slot, building location
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int MaxAvailableQuests = 5;
 	
+	UPROPERTY()
+	TArray<UQuest*
+		
+		#include 
+		
+		> Quests;
 };
