@@ -17,6 +17,8 @@ class QUESTGENERATOR_API UQuestManager : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 	
+	
+public:
 	virtual void Initialize(
 	  FSubsystemCollectionBase& Collection
   ) override;

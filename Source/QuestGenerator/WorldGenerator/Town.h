@@ -31,9 +31,5 @@ struct QUESTGENERATOR_API FTown
 	int MaxAvailableQuests = 5;
 	
 	UPROPERTY()
-	TArray<UQuest*
-		
-		#include 
-		
-		> Quests;
+	TArray<UQuest*> Quests;
 };

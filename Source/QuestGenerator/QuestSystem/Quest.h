@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "Objective.h"
-
+#include  "QuestType.h"
 #include "Quest.generated.h"
 
 /**

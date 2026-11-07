@@ -3,3 +3,7 @@
 
 #include "Objective.h"
 
+bool UObjective::IsComplete()
+{
+	return true;
+}
