@@ -51,9 +51,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<AActor*> Buildings;
 	
+	// Class of town centre to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TSubclassOf<AActor> TownCentreClass;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
-	TArray<UStaticMesh*> PropMeshes;
+	AActor* TownCentre;
+	
+	// Class of job billboard to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TSubclassOf<AActor> JobBoardClass;
+	
+	// Class of job billboard to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	AActor* JobBoard;
+	
 	
 	
 	bool bTownSpawned = false;

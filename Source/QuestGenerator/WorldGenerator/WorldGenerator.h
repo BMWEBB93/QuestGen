@@ -314,9 +314,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	TArray<TSubclassOf<AActor>> BuildingClasses;
 	
+	// Class of town centre to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
-	TArray<UStaticMesh*> PropMeshes;
+	TSubclassOf<AActor> TownCentreClass;
 	
+	// Class of job billboard to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TSubclassOf<AActor> JobBoardClass;
+		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	int TownsCount = 3;
 	

@@ -22,5 +22,5 @@ void UWorldState::Tick(float DeltaTime)
 
 TStatId UWorldState::GetStatId() const
 {
-	return Super::GetStatId();
+    RETURN_QUICK_DECLARE_CYCLE_STAT(UWorldState, STATGROUP_Tickables);
 }

@@ -26,6 +26,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* Mesh;
 	
 
 };

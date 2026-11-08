@@ -2287,7 +2287,8 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	
 	// set the building actors in the town
 	TownGenerator->BuildingClasses = BuildingClasses;
-	TownGenerator->PropMeshes = PropMeshes;
+	TownGenerator->TownCentreClass = TownCentreClass;
+	TownGenerator->JobBoardClass = JobBoardClass;
 	TownGenerator->TownHeight = VillagePlatformHeight;
 	TownGenerator->ChunkSize = ChunkSize;
 	
@@ -2386,7 +2387,7 @@ void AWorldGenerator::SetTownData()
 			FVector BuildingPosition(
 				X,
 				Y,
-				0.f
+				i * 360 / BuildingCount // rotation of the building
 			);
 			
 			

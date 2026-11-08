@@ -31,6 +31,7 @@ void ATownGenerator::CreateTown()
 {
 	if (!bTownSpawned)
 	{
+		// spawn the different building types
 		for (int i = 0; i < TownData.BuildingCount; i++)
 		{
 			int* BuildingIndex = TownData.Buildings.Find(i);
@@ -41,6 +42,8 @@ void ATownGenerator::CreateTown()
 				BuildingLocation->Y + TownData.WorldPosition.Y * ChunkSize + ChunkSize / 2,
 				TownHeight - 10.f
 			);
+			
+			FRotator SpawnRotation(0.f , BuildingLocation->Z, 0.f);
 
 			UClass* BuildingClass = BuildingClasses[*BuildingIndex];
 
@@ -52,13 +55,57 @@ void ATownGenerator::CreateTown()
 			AActor* SpawnedBuilding = GetWorld()->SpawnActor<AActor>(
 				BuildingClass,
 				SpawnLocation,
-				FRotator::ZeroRotator,
+				SpawnRotation,
 				SpawnParams
-			);
-			
+			);		
 			Buildings.Add(SpawnedBuilding);
 		}
 
+		// spawn the town centre
+		
+		// get the spawn location
+		FVector SpawnLocation(
+				TownData.WorldPosition.X * ChunkSize + ChunkSize / 2,
+				TownData.WorldPosition.Y * ChunkSize + ChunkSize / 2,
+				TownHeight
+			);
+		
+		// set spawn parameters
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.SpawnCollisionHandlingOverride =
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+		// spawn town centre
+		TownCentre = GetWorld()->SpawnActor<AActor>(
+			TownCentreClass,
+			SpawnLocation,
+			FRotator::ZeroRotator,
+			SpawnParams
+		);		
+		
+		
+		// spawn the Job board
+		
+		// offset spawn location
+		SpawnLocation += FVector(
+				-800.f,
+				100.f,
+				0.f
+			);
+		
+		
+		// spawn town centre
+		JobBoard = GetWorld()->SpawnActor<AActor>(
+			JobBoardClass,
+			SpawnLocation,
+			FRotator(0.f , 270.f , 0.f),
+			SpawnParams
+		);		
+		
+		
+		
+		
 		bTownSpawned = true;
 	}
 }
@@ -74,6 +121,10 @@ void ATownGenerator::ClearTown()
 		
 	}
 	Buildings.Empty();
+	
+	if (IsValid(JobBoard))JobBoard->Destroy();
+	if (IsValid(TownCentre))TownCentre->Destroy();
+	
 }
 
 
