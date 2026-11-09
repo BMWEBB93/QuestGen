@@ -16,7 +16,8 @@ struct QUESTGENERATOR_API FTown
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FIntPoint WorldPosition = FIntPoint(0, 0);
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int TownIndex = 0;
 	
 	UPROPERTY()
 	int BuildingCount = 5;
@@ -30,6 +31,6 @@ struct QUESTGENERATOR_API FTown
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxAvailableQuests = 5;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UQuest*> Quests;
 };

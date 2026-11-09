@@ -55,6 +55,9 @@ public:
 	// reference to world generator, used to get height
 	UPROPERTY()
 	AWorldGenerator* WorldGenerator;
+	
+	UPROPERTY()
+	float TownPlatformHeight;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")

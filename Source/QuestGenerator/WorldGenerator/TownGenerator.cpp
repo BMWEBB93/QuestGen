@@ -3,6 +3,8 @@
 
 #include "TownGenerator.h"
 
+#include "QuestGenerator/QuestSystem/JobBoard.h"
+
 
 // Sets default values
 ATownGenerator::ATownGenerator()
@@ -17,6 +19,25 @@ void ATownGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// get the quest manager
+	UGameInstance* GameInstance = GetGameInstance();
+
+	if (!IsValid(GameInstance))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameInstance is NULL in CreateTown"));
+		return;
+	}
+
+	QuestManager = GameInstance->GetSubsystem<UQuestManager>();
+
+	if (!IsValid(QuestManager))
+	{
+		UE_LOG(LogTemp, Error, TEXT("QuestManager is NULL in CreateTown"));
+		return;
+	}
+	
+	FillQuests();
+
 }
 
 // Called every frame
@@ -31,6 +52,9 @@ void ATownGenerator::CreateTown()
 {
 	if (!bTownSpawned)
 	{
+	
+		
+		
 		// spawn the different building types
 		for (int i = 0; i < TownData.BuildingCount; i++)
 		{
@@ -103,7 +127,8 @@ void ATownGenerator::CreateTown()
 			SpawnParams
 		);		
 		
-		
+		AJobBoard* JobBoardActor = Cast<AJobBoard>(JobBoard);
+		JobBoardActor->TownData = TownData;
 		
 		
 		bTownSpawned = true;
@@ -125,6 +150,30 @@ void ATownGenerator::ClearTown()
 	if (IsValid(JobBoard))JobBoard->Destroy();
 	if (IsValid(TownCentre))TownCentre->Destroy();
 	
+}
+
+void ATownGenerator::FillQuests()
+{
+	
+	int MaxQuests = TownData.MaxAvailableQuests;
+	Quests.SetNum(MaxQuests);
+	TownData.Quests.SetNum(MaxQuests);
+	
+	for (int i = 0; i < MaxQuests; i++)
+	{
+		if (IsValid(TownData.Quests[i]))
+		{
+			Quests[i] = TownData.Quests[i];
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("QuestManager: %s"),
+	IsValid(QuestManager) ? TEXT("Valid") : TEXT("NULL"));
+			
+			Quests[i] = QuestManager->RequestQuest(TownData);
+			TownData.Quests[i] = Quests[i];
+		}		
+	}
 }
 
 

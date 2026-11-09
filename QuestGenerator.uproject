@@ -9,22 +9,26 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine",
+				"CoreUObject"
 			]
 		}
 	],
-"Plugins": [
-    {
-        "Name": "ModelingToolsEditorMode",
-        "Enabled": true,
-        "TargetAllowList": ["Editor"]
-    },
-    {
-        "Name": "PythonScriptPlugin",
-        "Enabled": false
-    },
-    {
-        "Name": "EditorScriptingUtilities",
-        "Enabled": false
-    }
-]}
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": false
+		},
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": false
+		}
+	]
+}

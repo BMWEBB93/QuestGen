@@ -65,6 +65,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grass Settings")
 	float GrassMaxHeight = 3000.f;
 	
+	UPROPERTY()
+	float TownPlatformHeight;
+	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grass Settings")
 	UStaticMesh* GrassMesh;

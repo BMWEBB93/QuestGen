@@ -72,7 +72,8 @@ void AGrassGenerator::Tick(float DeltaTime)
 void AGrassGenerator::CreateGrass()
 {
 	WorldGenerator = Cast<AWorldGenerator>(UGameplayStatics::GetActorOfClass(GetWorld(),AWorldGenerator::StaticClass()));
-
+	TownPlatformHeight = WorldGenerator->TownPlatformHeight;
+	
 	Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	// player starts in the middle of the chunk
 	PlayerDelta += FVector(TileSize / 2, TileSize / 2, 0);
@@ -115,6 +116,8 @@ void AGrassGenerator::CreateGrass()
         	
         	Chunk->GrassMaxHeight = GrassMaxHeight;
         	Chunk->GrassMaxSlopeAngle = GrassMaxSlopeAngle;
+        	
+        	Chunk->TownPlatformHeight = TownPlatformHeight;
         	
             Chunk->SetHISMs(CullDistance);
             Chunk->GenerateGrass();

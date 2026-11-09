@@ -290,7 +290,7 @@ public:
 	void SpawnTown(FChunkData& Data);
 	
 	UFUNCTION()
-	void DespawnTown(FChunkData& Data);
+	void DespawnTown(ATownGenerator* Town, FChunkData& Data);
 	
 	void FindTownLocations();	
 	
@@ -327,7 +327,7 @@ public:
 	
 	
 	UPROPERTY(EditAnywhere, Category = "Towns")
-	float VillagePlatformHeight = 200.f;	
+	float TownPlatformHeight = 500.f;	
 	
 	////////////////////////////
 	/// River settings

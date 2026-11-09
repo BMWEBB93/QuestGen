@@ -573,40 +573,42 @@ void AWorldGenerator::CreateRiverPaths()
 
 void AWorldGenerator::CarvePointInRiver(FChunkData* Chunk, int x, int y)
 {		
+	// Radius of the water part of the river
     float RiverRadius = RiverWidth / 2.f;
-    float FloodRadius = RiverRadius + FloodPlainWidth;
-
+	// Radius of the flat bank next to the river
+    float FloodRadius = RiverRadius + FloodPlainWidth;	
+	// Height of the bank next to the river
     float FloodPlainHeight = 20.f;
 
+	// loop through each vertex in the river radius
     for (int OffsetX = -FMath::CeilToInt(FloodRadius); OffsetX <= FMath::CeilToInt(FloodRadius ); OffsetX++)
     {
-    	for (int OffsetY = -FMath::CeilToInt(FloodRadius); OffsetY <= FMath::CeilToInt(FloodRadius + FloodRadius); OffsetY++)
+    	for (int OffsetY = -FMath::CeilToInt(FloodRadius); OffsetY <= FMath::CeilToInt(FloodRadius); OffsetY++)
     	{
+    		// get the vertex
     		int VertexX = x + OffsetX;
     		int VertexY = y + OffsetY;
 
+    		// if vertex is out of bounds, skip it
     		if (VertexX < 0 || VertexX > ChunkResolution ||
 				VertexY < 0 || VertexY > ChunkResolution )
     		{
     			continue;
     		}
 
-    		
+    		// get the distance from the river centre
     		float Distance = FMath::Sqrt(
 				FMath::Square((float)OffsetX) +
-				FMath::Square((float)OffsetY));
+				FMath::Square((float)OffsetY));    	
 
-    		if (Distance > FloodRadius)
-    			continue;
-
+    		// get the index of the vertex
     		int32 Index = VertexX + VertexY * (ChunkResolution + 1);
-
-    		if (!Chunk->Heights.IsValidIndex(Index))
-    			continue;
-
+    		
     		float OriginalHeight = Chunk->Heights[Index];
     		float TargetHeight;
 
+    		
+    		
     		if (Distance <= RiverRadius)
     		{
     			// River bed
@@ -623,16 +625,7 @@ void AWorldGenerator::CarvePointInRiver(FChunkData* Chunk, int x, int y)
 					OriginalHeight,
 					Alpha
 				);
-    		}
-
-    		// Sample noise using world position so it stays consistent
-    		FVector2D NoisePosition(
-				(Chunk->WorldCoord.X * ChunkSize + VertexX * ChunkScale) * RiverFrequency,
-				(Chunk->WorldCoord.Y * ChunkSize + VertexY * ChunkScale) * RiverFrequency
-			);
-
-    		float Noise = FMath::PerlinNoise2D(NoisePosition) * RiverNoiseScale;
-    		TargetHeight += Noise;
+    		}   	
     		
     		Chunk->Heights[Index] = FMath::Min(
 				OriginalHeight,
@@ -789,15 +782,7 @@ void AWorldGenerator::CarveRivers()
 
 						float Curve = (float)Progress / Halfway;
 						Curve = FMath::Sin(Curve * PI);
-						
-						// Sample noise using world position so it stays consistent
-						FVector2D NoisePosition(
-							(Chunk->WorldCoord.X * ChunkSize + x * ChunkScale) * RiverFrequency,
-							(Chunk->WorldCoord.Y * ChunkSize + y * ChunkScale) * RiverFrequency
-						);
-
-						float Noise = FMath::PerlinNoise2D(NoisePosition);
-
+										
 						int Meander = FMath::RoundToInt(Curve * 1.f);
 
 						// Move towards the exit
@@ -1081,6 +1066,8 @@ void AWorldGenerator::GenerateWorld()
 	//Carve Rivers	
 	CarveRivers();
 	
+	
+	
 	// generate Foliage
 	for (int y = 0; y < WorldSize; y++)
 	{
@@ -1222,11 +1209,10 @@ void AWorldGenerator::ClearWorld()
 
 			if (Data)
 			{
-				// Save the town data
 				Data->Town = Town->TownData;
 				Data->bTownIsSpawned = false;
 				
-				DespawnTown(*Data);
+				DespawnTown(Town, *Data);				
 			}			
 		}
 	}
@@ -1708,7 +1694,7 @@ void AWorldGenerator::GenerateMapData(FChunkData& chunkData)
 				float Originalheight = chunkData.Heights[Index];
 			
 				// create a platform for the village
-				float Height = FMath::Lerp(Originalheight, VillagePlatformHeight, BlendRatio);
+				float Height = FMath::Lerp(Originalheight, TownPlatformHeight, BlendRatio);
 							
 				// set height in the chunk data heightmap
 				chunkData.Heights[Index] = Height;
@@ -2002,8 +1988,20 @@ void AWorldGenerator::ShiftLandChunks(FIntPoint Direction)
 			{
 				// Remove any towns			
 				if (Data->bHasTown && Data->bTownIsSpawned)
-				{
-					DespawnTown(*Data);
+				{	
+					ATownGenerator* TownGenerator = nullptr;
+					// loop through all towns to find the one in data
+					for (ATownGenerator* Town : TownGenerators)
+					{
+						if (Town->TownData.WorldPosition == Chunk->WorldCoord) // find town from data 
+						{
+							TownGenerator = Town; 
+							break;
+						}
+					}
+					TownGenerators.Remove(TownGenerator);
+					DespawnTown(TownGenerator, *Data);	
+					
 				}
 			}
 		
@@ -2260,10 +2258,7 @@ ELocationType AWorldGenerator::GetChunkBiomeAtLocation(float WorldX, float World
 }
 
 void AWorldGenerator::SpawnTown(FChunkData& Data)
-{
-	
-
-	
+{	
 	// if generator class isn't set return
 	if (!TownGeneratorClass) return;
 	
@@ -2289,7 +2284,7 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	TownGenerator->BuildingClasses = BuildingClasses;
 	TownGenerator->TownCentreClass = TownCentreClass;
 	TownGenerator->JobBoardClass = JobBoardClass;
-	TownGenerator->TownHeight = VillagePlatformHeight;
+	TownGenerator->TownHeight = TownPlatformHeight;
 	TownGenerator->ChunkSize = ChunkSize;
 	
 	
@@ -2305,36 +2300,18 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 
 }
 
-void AWorldGenerator::DespawnTown(FChunkData& Data)
+void AWorldGenerator::DespawnTown(ATownGenerator* Town, FChunkData& Data)
 {
-	// get the world coordinate of the town
-	FIntPoint ChunkCoord = Data.WorldCoord;
-	
-	ATownGenerator* TownGenerator = nullptr;
-	// loop through all towns to find the one in data
-	for (ATownGenerator* Town : TownGenerators)
-	{
-		if (Town->TownData.WorldPosition == ChunkCoord) // find town from data 
-		{
-			TownGenerator = Town; 
-			break;
-		}
-	}
-	// if the town generator isnt found return
-	if (TownGenerator == nullptr) return;
-	
 	// save the town data to chunk data
-	Data.Town = TownGenerator->TownData;
+	Data.Town = Town->TownData;
 	
 	// update bool in chunk data
 	Data.bTownIsSpawned = false;
 	
 	// destroy town generator and remove from array
-	TownGenerator->ClearTown();
-	TownGenerator->Destroy();
-	TownGenerators.Remove(TownGenerator);
+	Town->ClearTown();
+	Town->Destroy();
 	
-
 }
 
 void AWorldGenerator::SetTownData()
@@ -2342,8 +2319,12 @@ void AWorldGenerator::SetTownData()
 	// get the total amount of building variations 
 	int MaxBuildingTypes = BuildingClasses.Num();
 	
+	int Index = 0;
 	for (FTown& Town : Towns)
 	{
+		Town.TownIndex = Index;
+		Index++;
+		
 		int TownSeed = HashCombine(
 			GetTypeHash(Seed),
 			HashCombine(

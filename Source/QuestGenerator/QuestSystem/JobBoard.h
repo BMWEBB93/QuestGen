@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "QuestGenerator/WorldGenerator/Town.h"
 #include "Quest.h"
 #include "JobBoard.generated.h"
 
@@ -29,5 +30,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* Mesh;
 	
-
+	UPROPERTY()
+	FTown TownData;
 };

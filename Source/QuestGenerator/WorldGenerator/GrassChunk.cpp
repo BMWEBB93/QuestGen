@@ -100,7 +100,7 @@ void AGrassChunk::GenerateGrass()
 			float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
 
 			// add grass to landscape
-			if (Height > 100.f && Height < GrassMaxHeight && Angle <= GrassMaxSlopeAngle) // add grass
+			if (Height > 100.f && Height < GrassMaxHeight && Angle <= GrassMaxSlopeAngle && Height != TownPlatformHeight) // add grass
 			{
 				// set a random scale
 				float xyScale = Stream.FRandRange(1.5f, 1.8f);

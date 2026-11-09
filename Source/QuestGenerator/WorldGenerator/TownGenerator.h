@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Town.h"
-#include  "ChunkData.h"
+#include "QuestGenerator/QuestSystem/QuestManager.h"
+#include "QuestGenerator/QuestSystem/Quest.h"
+#include "ChunkData.h"
 #include "TownGenerator.generated.h"
 
 UCLASS()
@@ -29,13 +31,21 @@ public:
 	UFUNCTION()
 	void CreateTown();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Generation")
 	void ClearTown();
+	
+	UFUNCTION()
+	void FillQuests();
 
-	UPROPERTY(EditAnywhere)
+	
+	
+	UPROPERTY()
+	UQuestManager* QuestManager;
+	
+	UPROPERTY()
 	FChunkData ChunkData;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	FTown TownData;
 	
 	UPROPERTY()
@@ -66,7 +76,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	AActor* JobBoard;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	int MaxAvailableQuests = 5;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
+	TArray<UQuest*> Quests;
 	
 	bool bTownSpawned = false;
 };
