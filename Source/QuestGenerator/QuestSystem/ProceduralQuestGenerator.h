@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 
+#include "QuestGenerator/WorldGenerator/WorldGenerator.h"
 #include  "QuestType.h"
 #include  "Quest.h"
 #include "ProceduralQuestGenerator.generated.h"
@@ -13,6 +14,7 @@
  * 
  */
 class UQuestManager;
+class AWorldGenerator;
 
 UCLASS()
 class QUESTGENERATOR_API UProceduralQuestGenerator : public UObject
@@ -28,9 +30,10 @@ class QUESTGENERATOR_API UProceduralQuestGenerator : public UObject
 	TObjectPtr<UQuestManager> QuestManager;
 	
 	UFUNCTION()
-	UQuest* GenerateQuest();
+	UQuest* GenerateQuest(FTown TownData);
 	
-	
+	UPROPERTY()
+	AWorldGenerator* WorldGenerator = nullptr;
 	
 	UPROPERTY()
 	int NextQuestID = 0;

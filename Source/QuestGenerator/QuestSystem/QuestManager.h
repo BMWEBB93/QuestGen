@@ -13,6 +13,9 @@
 /**
  * 
  */
+
+class AWorldGenerator;
+
 UCLASS(Blueprintable)
 class QUESTGENERATOR_API UQuestManager : public UGameInstanceSubsystem
 {
@@ -47,8 +50,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Quests")
 	void AcceptQuest(UQuest* Quest);
 
-		
-
+	UPROPERTY()
+	AWorldGenerator* WorldGenerator = nullptr;
+	
+	
+	
 	// Check quest completion
 	UFUNCTION(BlueprintCallable, Category = "Quests")
 	void CheckQuestCompletion(UQuest* Quest);

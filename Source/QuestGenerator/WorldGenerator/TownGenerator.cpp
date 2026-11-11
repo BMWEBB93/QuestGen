@@ -22,22 +22,9 @@ void ATownGenerator::BeginPlay()
 	// get the quest manager
 	UGameInstance* GameInstance = GetGameInstance();
 
-	if (!IsValid(GameInstance))
-	{
-		UE_LOG(LogTemp, Error, TEXT("GameInstance is NULL in CreateTown"));
-		return;
-	}
-
 	QuestManager = GameInstance->GetSubsystem<UQuestManager>();
 
-	if (!IsValid(QuestManager))
-	{
-		UE_LOG(LogTemp, Error, TEXT("QuestManager is NULL in CreateTown"));
-		return;
-	}
-	
 	FillQuests();
-
 }
 
 // Called every frame
@@ -53,7 +40,7 @@ void ATownGenerator::CreateTown()
 	if (!bTownSpawned)
 	{
 	
-		
+		TownId = TownData.TownId;
 		
 		// spawn the different building types
 		for (int i = 0; i < TownData.BuildingCount; i++)
@@ -166,13 +153,10 @@ void ATownGenerator::FillQuests()
 			Quests[i] = TownData.Quests[i];
 		}
 		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("QuestManager: %s"),
-	IsValid(QuestManager) ? TEXT("Valid") : TEXT("NULL"));
-			
+		{			
 			Quests[i] = QuestManager->RequestQuest(TownData);
 			TownData.Quests[i] = Quests[i];
-		}		
+		}				
 	}
 }
 

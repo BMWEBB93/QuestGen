@@ -3,18 +3,18 @@
 
 #include "QuestManager.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "QuestGenerator/WorldGenerator/WorldGenerator.h"
+#include "QuestGenerator/WorldGenerator/ChunkData.h"
+
+
+
+
 void UQuestManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 	
-	UE_LOG(LogTemp, Warning, TEXT("QuestManager Initialising"));
-
-	
-	QuestGenerator = NewObject<UProceduralQuestGenerator>(this);
-	
-	UE_LOG(LogTemp, Warning, TEXT("QuestGenerator Created: %s"),
-		IsValid(QuestGenerator) ? TEXT("Valid") : TEXT("NULL"));
-	
+	QuestGenerator = NewObject<UProceduralQuestGenerator>(this);		
 	QuestGenerator->Initialise(this);
 }
 
@@ -25,8 +25,19 @@ void UQuestManager::Deinitialize()
 
 UQuest* UQuestManager::RequestQuest(FTown TownData)
 {
-	UQuest* quest = QuestGenerator->GenerateQuest();
+	if (WorldGenerator == nullptr)
+	{
+		WorldGenerator = Cast<AWorldGenerator>(
+	UGameplayStatics::GetActorOfClass(
+		GetWorld(),
+		AWorldGenerator::StaticClass()));
+	}
+	
+	UQuest* quest = QuestGenerator->GenerateQuest(TownData);
 	AvailableQuests.Add(quest);
+	
+	
+	
 	
 	return quest;
 }

@@ -2269,11 +2269,15 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 		FVector(Data.WorldCoord.X * ChunkSize,Data.WorldCoord.Y * ChunkSize,0 ) 
 	);
 	
-	// spawn the town
-	ATownGenerator* TownGenerator = GetWorld()->SpawnActor<ATownGenerator>(
+	FTransform SpawnTransform = FTransform(
+		FRotator::ZeroRotator, 
+		WorldLocation, 
+		FVector(0, 0, 0));
+	
+	// spawn the town, spawn is deferred so that town data is set
+	ATownGenerator* TownGenerator = GetWorld()->SpawnActorDeferred<ATownGenerator>(
 	   TownGeneratorClass,
-	   WorldLocation,
-	   FRotator::ZeroRotator
+	   SpawnTransform	   
    );
 	
 	// add data to the town 
@@ -2281,12 +2285,15 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	TownGenerator->ChunkData = Data;
 	
 	// set the building actors in the town
+	
+	
 	TownGenerator->BuildingClasses = BuildingClasses;
 	TownGenerator->TownCentreClass = TownCentreClass;
 	TownGenerator->JobBoardClass = JobBoardClass;
 	TownGenerator->TownHeight = TownPlatformHeight;
 	TownGenerator->ChunkSize = ChunkSize;
 	
+	UGameplayStatics::FinishSpawningActor(TownGenerator, SpawnTransform);
 	
 	// update bool in chunk data
 	Data.bTownIsSpawned = true;
@@ -2322,7 +2329,7 @@ void AWorldGenerator::SetTownData()
 	int Index = 0;
 	for (FTown& Town : Towns)
 	{
-		Town.TownIndex = Index;
+		Town.TownId = Index;
 		Index++;
 		
 		int TownSeed = HashCombine(

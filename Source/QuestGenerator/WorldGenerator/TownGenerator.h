@@ -45,8 +45,14 @@ public:
 	UPROPERTY()
 	FChunkData ChunkData;
 	
+	
+	
 	UPROPERTY()
 	FTown TownData;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int TownId = 0;
+	
 	
 	UPROPERTY()
 	float ChunkSize;

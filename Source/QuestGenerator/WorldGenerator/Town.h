@@ -17,7 +17,7 @@ struct QUESTGENERATOR_API FTown
 	FIntPoint WorldPosition = FIntPoint(0, 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int TownIndex = 0;
+	int TownId = 0;
 	
 	UPROPERTY()
 	int BuildingCount = 5;
