@@ -8,6 +8,7 @@
 #include "QuestGenerator/WorldGenerator/WorldGenerator.h"
 #include  "QuestType.h"
 #include  "Quest.h"
+#include "Objective.h"
 #include "ProceduralQuestGenerator.generated.h"
 
 /**

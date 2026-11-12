@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Town.h"
+#include "QuestGenerator/QuestSystem/JobBoard.h"
 #include "QuestGenerator/QuestSystem/QuestManager.h"
 #include "QuestGenerator/QuestSystem/Quest.h"
 #include "ChunkData.h"
@@ -80,7 +81,7 @@ public:
 	
 	// Class of job billboard to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
-	AActor* JobBoard;
+	AJobBoard* JobBoard;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	int MaxAvailableQuests = 5;

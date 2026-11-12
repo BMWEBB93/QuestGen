@@ -107,7 +107,7 @@ void ATownGenerator::CreateTown()
 		
 		
 		// spawn town centre
-		JobBoard = GetWorld()->SpawnActor<AActor>(
+		JobBoard = GetWorld()->SpawnActor<AJobBoard>(
 			JobBoardClass,
 			SpawnLocation,
 			FRotator(0.f , 270.f , 0.f),
@@ -156,8 +156,10 @@ void ATownGenerator::FillQuests()
 		{			
 			Quests[i] = QuestManager->RequestQuest(TownData);
 			TownData.Quests[i] = Quests[i];
-		}				
+		}		
+		JobBoard->UpdateJob(i);
 	}
+	
 }
 
 

@@ -26,10 +26,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateJob(int JobIndex);
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* Mesh;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FTown TownData;
 };
