@@ -32,5 +32,5 @@ struct QUESTGENERATOR_API FTown
 	int MaxAvailableQuests = 5;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<UQuest*> Quests;
+	TArray<TObjectPtr<UQuest>> Quests;
 };

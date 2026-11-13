@@ -157,6 +157,21 @@ void ATownGenerator::FillQuests()
 			Quests[i] = QuestManager->RequestQuest(TownData);
 			TownData.Quests[i] = Quests[i];
 		}		
+		
+		UE_LOG(LogTemp, Warning, TEXT("JobBoard valid: %s"),
+	IsValid(JobBoard) ? TEXT("YES") : TEXT("NO"));
+
+		UE_LOG(LogTemp, Warning, TEXT("QuestManager valid: %s"),
+			IsValid(QuestManager) ? TEXT("YES") : TEXT("NO"));
+
+		UE_LOG(LogTemp, Warning, TEXT("Town quests: %d"),
+			TownData.Quests.Num());
+
+		UE_LOG(LogTemp, Warning, TEXT("Generator: %s"),
+			*GetName());
+		
+		
+		JobBoard->TownData = TownData;		
 		JobBoard->UpdateJob(i);
 	}
 	

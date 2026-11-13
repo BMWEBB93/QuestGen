@@ -77,7 +77,7 @@ public:
 	
 	// Class of job billboard to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
-	TSubclassOf<AActor> JobBoardClass;
+	TSubclassOf<AJobBoard> JobBoardClass;
 	
 	// Class of job billboard to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
@@ -87,7 +87,7 @@ public:
 	int MaxAvailableQuests = 5;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
-	TArray<UQuest*> Quests;
+	TArray<TObjectPtr<UQuest>> Quests;
 	
 	bool bTownSpawned = false;
 };

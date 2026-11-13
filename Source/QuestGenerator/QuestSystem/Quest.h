@@ -13,7 +13,7 @@
 /**
  * 
  */
-UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, EditInlineNew, DefaultToInstanced)
 class QUESTGENERATOR_API UQuest : public UObject
 {
 	

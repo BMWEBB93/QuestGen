@@ -42,8 +42,16 @@ UQuest* UQuestManager::RequestQuest(FTown TownData)
 	return quest;
 }
 
-void UQuestManager::AcceptQuest(UQuest* Quest)
+void UQuestManager::AcceptQuest(UQuest* NewQuest)
 {
+	for (UQuest* Quest : AvailableQuests)
+	{
+		if (Quest->QuestId == NewQuest->QuestId)
+		{
+			Quest->QuestState = EObjectiveState::InProgress;
+			ActiveQuests.Add(Quest);
+		}
+	}
 }
 
 void UQuestManager::CheckQuestCompletion(UQuest* Quest)

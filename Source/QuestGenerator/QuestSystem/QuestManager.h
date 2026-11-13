@@ -33,7 +33,7 @@ public:
 	TArray<UQuest*> AvailableQuests;
 	
 	// Quests currently accepted by the player
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UQuest*> ActiveQuests;
 	
 	// Quests completed by the player

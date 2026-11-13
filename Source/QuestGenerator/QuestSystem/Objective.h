@@ -12,7 +12,7 @@
 /**
  * 
  */
-UCLASS(Abstract, Blueprintable, EditInlineNew, DefaultToInstanced)
+UCLASS(Blueprintable, EditInlineNew, DefaultToInstanced)
 class QUESTGENERATOR_API UObjective : public UObject
 {
     GENERATED_BODY()   

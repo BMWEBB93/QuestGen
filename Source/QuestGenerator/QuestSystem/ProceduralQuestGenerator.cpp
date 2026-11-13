@@ -93,7 +93,7 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 						
 				//WorldGenerator->ChunkData
 						
-				break;
+				break; 
 			}
 		
 		case EQuestType::Retrieval:

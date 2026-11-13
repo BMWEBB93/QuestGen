@@ -2293,6 +2293,10 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	TownGenerator->TownHeight = TownPlatformHeight;
 	TownGenerator->ChunkSize = ChunkSize;
 	
+	TownGenerator->CreateTown();
+
+	
+	
 	UGameplayStatics::FinishSpawningActor(TownGenerator, SpawnTransform);
 	
 	// update bool in chunk data
@@ -2303,7 +2307,6 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	TownGenerators.Add(TownGenerator);
 	
 	
-	TownGenerator->CreateTown();
 
 }
 
