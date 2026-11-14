@@ -11,6 +11,7 @@
 #include "River.h"
 #include "Town.h"
 #include "TownGenerator.h"
+#include "NameGenerator.h"
 
 #include "WorldGenerator.generated.h"
 
@@ -324,6 +325,30 @@ public:
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns")
 	int TownsCount = 3;
+	
+	UFUNCTION()
+	ELocationType GetTownTerrainType(FTown& Town);
+	
+	
+	// Town name generation
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
+	TArray<FText> NamePrefixes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
+	TArray<FText> NameForestSuffixes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
+	TArray<FText> NameSwampSuffixes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
+	TArray<FText> NameBeachSuffixes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
+	TArray<FText> NameMountainSuffixes;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
+	TArray<FText> NameRiverSuffixes;
+
 	
 	
 	UPROPERTY(EditAnywhere, Category = "Towns")

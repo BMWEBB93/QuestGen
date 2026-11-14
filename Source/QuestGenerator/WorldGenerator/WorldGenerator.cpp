@@ -859,7 +859,6 @@ void AWorldGenerator::FindTownLocations()
 		// Find best Town Location
 		int BestScore = 0;
 		FIntPoint BestLocation;
-		FIntPoint BestSource = FIntPoint(0, 0);
 		for (int y = 0; y < WorldSize; y++)
 		{
 			for (int x = 0; x < WorldSize; x++)
@@ -879,8 +878,7 @@ void AWorldGenerator::FindTownLocations()
 				// skip chunks on mountain, ocean or swamp
 				if (Chunk->Location == ELocationType::Mountain ||
 					Chunk->Location == ELocationType::Ocean ||
-					Chunk->Location == ELocationType::Swamp || 
-					Chunk->Location == ELocationType::Forest)					
+					Chunk->Location == ELocationType::Swamp)					
 				{
 					continue;
 				}
@@ -902,18 +900,20 @@ void AWorldGenerator::FindTownLocations()
 			
 				// create Town score for this chunk
 				int ChunkScore = 0;
-				int CoastCount = 0;
-			
-				if (Chunk->Location == ELocationType::Grassland)
-				{
-					ChunkScore += 2;	
-				}
-				
+				int CoastCount = 0;		
 				
 				// loop through chunk neighbours and increment based on biomes
 				for (const TPair<ENeighbourDirections, ELocationType>& Neighbour : Chunk->NeighbourChunks)
-				{
-					ELocationType Location = Neighbour.Value;				
+				{					
+					ELocationType Location = Neighbour.Value;		
+					if (Location == ELocationType::Mountain)
+					{
+						ChunkScore += 2;
+					}
+					if (Location == ELocationType::Forest)
+					{
+						ChunkScore += 1;
+					}
 					if (Location == ELocationType::Ocean)
 					{
 						CoastCount += 1;
@@ -921,7 +921,11 @@ void AWorldGenerator::FindTownLocations()
 				}
 				if (CoastCount > 1 && CoastCount < 4)
 				{
-					ChunkScore += 10;
+					ChunkScore += 1;
+				}
+				else if (CoastCount > 3)
+				{
+					ChunkScore -= 5;
 				}
 				
 				// check chunk borders river
@@ -932,7 +936,7 @@ void AWorldGenerator::FindTownLocations()
 						if (PositionOnRiver(Chunk->WorldCoord + FIntPoint(a, b)))
 						{
 							if (a == 0 && b == 0) continue; // skip middle chunk
-							ChunkScore += 2;
+							ChunkScore += 5;
 						}
 					}
 				}
@@ -953,7 +957,7 @@ void AWorldGenerator::FindTownLocations()
 
 				// Reduce score if close to another town
 				int ScoreAdjustment = FMath::Clamp(ClosestTown, 0 , 15);
-				ChunkScore += ScoreAdjustment  *3;
+				ChunkScore += ScoreAdjustment  *4;
 			
 				// store best chunk score and river source coordinate
 				if (ChunkScore > BestScore)
@@ -1770,7 +1774,11 @@ void AWorldGenerator::GenerateFoliageData(FChunkData& chunkData)
 			case ELocationType::Forest:
 				{
 					// Spawn trees
-					if (Choice < 0.2f && (x + y) % 2 == 0 && Angle <= 20.f && Height > 50.f)
+					if (Choice < 0.2f && 
+						(x + y) % 2 == 0 && 
+						Angle <= 20.f && 
+						Height > 50.f && 
+						Height != TownPlatformHeight)
 					{
 						// add random offset to foliage that are not cliffs	
 						Transform.SetLocation(FVector(
@@ -2329,12 +2337,22 @@ void AWorldGenerator::SetTownData()
 	// get the total amount of building variations 
 	int MaxBuildingTypes = BuildingClasses.Num();
 	
+	// create the name generator
+	UNameGenerator* NameGenerator = NewObject<UNameGenerator>(this);
+	
+	// loop through all created towns
 	int Index = 0;
 	for (FTown& Town : Towns)
 	{
 		Town.TownId = Index;
 		Index++;
 		
+		
+		// set the name of the town
+		ELocationType TownTerrain = GetTownTerrainType(Town);
+		Town.TownName = NameGenerator->GenerateName(TownTerrain);
+		
+		// create a random stream using the town position
 		int TownSeed = HashCombine(
 			GetTypeHash(Seed),
 			HashCombine(
@@ -2342,11 +2360,10 @@ void AWorldGenerator::SetTownData()
 				GetTypeHash(Town.WorldPosition.Y)
 			)
 		);
-
 		FRandomStream RandomStream(TownSeed);		
 		
-		int BuildingSlots = RandomStream.RandRange(5, 8);
-		
+		// set a random building count for the town 
+		int BuildingSlots = RandomStream.RandRange(5, 8);		
 		Town.BuildingCount = BuildingSlots;
 		
 		// create an array of valid building types
@@ -2385,14 +2402,95 @@ void AWorldGenerator::SetTownData()
 			Town.BuildingsLocations.Add(i, BuildingPosition);
 		}
 		
+		// get the chunk data the town sits on
 		FChunkData* Data = ChunkData.Find(Town.WorldPosition);
-
+		
+		// set the town in the chunk data
 		if (Data)
 		{
 			Data->Town = Town;
 			Data->bHasTown = true;
 		}
 	}
+}
+
+ELocationType AWorldGenerator::GetTownTerrainType(FTown& Town)
+{
+	// initialise terrain counts
+	int SwampLocations = 0;
+	int ForestLocations = 0;
+	int BeachLocations = 0;
+	int MountainLocations = 0;
+	int RiverLocations = 0;
+			
+	ELocationType TerrainType = ELocationType::NONE;
+	
+	// get neighbour locations and check terrain
+	for (int i = Town.WorldPosition.X - 1; i <= Town.WorldPosition.X + 1; i++)
+	{
+		for (int j = Town.WorldPosition.Y - 1; j <= Town.WorldPosition.Y + 1; j++)
+		{
+			// get the chunk data at the coordinate
+			FIntPoint Coord = FIntPoint(i, j);
+			FChunkData* Chunk = ChunkData.Find(Coord);
+
+			// increment terrain counts if valid
+			switch (Chunk->Location)
+			{
+				case ELocationType::Beach:
+				BeachLocations++;
+				break;
+				
+				case ELocationType::Mountain:
+				MountainLocations++;
+				break;
+				
+				case ELocationType::Forest:
+				ForestLocations++;
+				break;
+				
+				case ELocationType::Swamp:
+				SwampLocations++;
+				break;				
+			}
+			
+			// check rivers for coordinate
+			if (PositionOnRiver(Coord))
+			{
+				RiverLocations++;
+			}
+		}
+	}
+	
+	// get most common terrain type 
+	int HighestCount = 0;
+	
+	if (SwampLocations > HighestCount)
+	{
+		HighestCount = SwampLocations;
+		TerrainType = ELocationType::Swamp;
+	}
+	if (ForestLocations > HighestCount)
+	{
+		HighestCount = ForestLocations;
+		TerrainType = ELocationType::Forest;
+	}
+	if (BeachLocations > HighestCount)
+	{
+		HighestCount = BeachLocations;
+		TerrainType = ELocationType::Beach;
+	}
+	if (MountainLocations > HighestCount)
+	{
+		HighestCount = MountainLocations;
+		TerrainType = ELocationType::Mountain;
+	}
+	if (RiverLocations > HighestCount)
+	{
+		TerrainType = ELocationType::River;
+	}
+	
+	return TerrainType;
 }
 
 

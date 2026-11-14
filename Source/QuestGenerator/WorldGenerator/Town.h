@@ -19,6 +19,9 @@ struct QUESTGENERATOR_API FTown
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int TownId = 0;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText TownName;
+	
 	UPROPERTY()
 	int BuildingCount = 5;
 	

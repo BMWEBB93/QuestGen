@@ -41,6 +41,7 @@ void ATownGenerator::CreateTown()
 	{
 	
 		TownId = TownData.TownId;
+		TownName = TownData.TownName;
 		
 		// spawn the different building types
 		for (int i = 0; i < TownData.BuildingCount; i++)

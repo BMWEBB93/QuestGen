@@ -44,12 +44,15 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 	{
 		case EQuestType::Delivery:
 			{				
+				
+				
 				// create a 'go to location' objective
 				UObjective* Objective = NewObject<UObjective>(Quest);		
 				Objective->ObjectiveType = ObjectiveType::Location;				
 				
 				// get other town locations 
-				TArray<FIntPoint> Coordinates;				
+				TArray<FIntPoint> Coordinates;
+				//FTown Town;
 				for (FTown Town : WorldGenerator->Towns)
 				{
 					if (Town.TownId == TownData.TownId) // skip current town
@@ -61,8 +64,10 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 				}
 				// set the objective location to the random town
 				int RandomIndex = FMath::RandRange(0, Coordinates.Num() - 1);
-				Objective->TargetLocation = Coordinates[RandomIndex];			
+				Objective->TargetLocation = Coordinates[RandomIndex];		
 				
+				// set progress state
+				Objective->ObjectiveState = EObjectiveState::InProgress;
 				Quest->Objectives.Add(Objective); // add objective to the quest				
 				
 				break;
@@ -72,12 +77,7 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 			{				
 				UObjective* Objective = NewObject<UObjective>(Quest);
 					
-				// get other town locations 
-				for (FTown Town : WorldGenerator->Towns)
-				{
-						
-				}
-					
+				
 					
 				//WorldGenerator->ChunkData
 					

@@ -14,7 +14,7 @@ enum class ELocationType : uint8
 	NONE UMETA(DisplayName = "NONE"),
 	Ocean UMETA(DisplayName = "Ocean"),
 	Beach UMETA(DisplayName = "Beach"),
-	Village	UMETA(DisplayName = "Town"),
+	River	UMETA(DisplayName = "River"),
 	Forest UMETA(DisplayName = "Forest"),
 	Swamp UMETA(DisplayName = "Swamp"),
 	Grassland UMETA(DisplayName = "Grassland"),

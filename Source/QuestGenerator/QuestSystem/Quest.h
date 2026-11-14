@@ -29,10 +29,10 @@ public:
 	
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FString QuestName;
+	FText QuestName;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FString QuestDescription;
+	FText QuestDescription;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EQuestType QuestType = EQuestType::NONE;

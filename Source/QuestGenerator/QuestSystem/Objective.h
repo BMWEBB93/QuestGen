@@ -26,7 +26,7 @@ class QUESTGENERATOR_API UObjective : public UObject
     int ObjectiveId;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FString ObjectiveDescription;
+    FText ObjectiveDescription;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     ObjectiveType ObjectiveType;
