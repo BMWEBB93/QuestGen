@@ -64,7 +64,27 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 				}
 				// set the objective location to the random town
 				int RandomIndex = FMath::RandRange(0, Coordinates.Num() - 1);
-				Objective->TargetLocation = Coordinates[RandomIndex];		
+				Objective->TargetLocation = Coordinates[RandomIndex];	
+				
+				// get the town
+				FTown TargetTown = WorldGenerator->ChunkData.Find(Coordinates[RandomIndex])->Town;
+				
+				// set the description and name of quest
+				Quest->QuestName = FText::Format(
+					FText::FromString("Deliver supplies to {0}"),
+					TargetTown.TownName
+				);
+				
+				Quest->QuestDescription = FText::Format(
+					FText::FromString("Deliver supplies to {0}"),
+					TargetTown.TownName
+				);
+				
+				Objective->ObjectiveDescription = FText::Format(				
+					FText::FromString("Head to {0}"),
+					TargetTown.TownName
+				);
+				
 				
 				// set progress state
 				Objective->ObjectiveState = EObjectiveState::InProgress;
