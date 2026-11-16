@@ -4,7 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "QuestGenerator/WorldGenerator/ItemData.h"
+#include "QuestGenerator/QuestSystem/QuestManager.h"
+
 #include "BaseItem.generated.h"
+
+
 
 UCLASS()
 class QUESTGENERATOR_API ABaseItem : public AActor
@@ -23,11 +28,22 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
+	UFUNCTION(BlueprintCallable, Category = "Item")
+	void Interact();
 	
 	// Mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
 	TObjectPtr<UStaticMeshComponent> ItemMesh;
 	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FIntPoint CurrentChunkCoord;
+	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FItemData ItemData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	FString ItemName;
 	
 };

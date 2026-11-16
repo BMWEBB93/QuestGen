@@ -27,6 +27,8 @@ public:
 	UPROPERTY()
 	int TownId = 0;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Quest")
+	int ActiveObjective = 0;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FText QuestName;

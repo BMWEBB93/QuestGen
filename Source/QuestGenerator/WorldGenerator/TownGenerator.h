@@ -11,6 +11,8 @@
 #include "ChunkData.h"
 #include "TownGenerator.generated.h"
 
+class UQuestManager;
+
 UCLASS()
 class QUESTGENERATOR_API ATownGenerator : public AActor
 {

@@ -6,6 +6,8 @@
 #include "LocationType.h"
 #include "NeighbourDirections.h"
 #include "Town.h"
+#include "NpcData.h"
+#include "ItemData.h"
 #include "ChunkData.generated.h"
 
 
@@ -26,7 +28,7 @@ struct QUESTGENERATOR_API FChunkData
 	UPROPERTY()
 	TArray<float> Heights; // Heightmap 
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	FIntPoint WorldCoord = FIntPoint(0, 0);
 	
 	// foliage
@@ -38,6 +40,16 @@ struct QUESTGENERATOR_API FChunkData
 	
 	UPROPERTY()
 	TArray<FTransform> PlantTransforms;
+	
+	
+	// Items
+	UPROPERTY()
+	TArray<FItemData> Items;
+	
+	// Npcs 
+	UPROPERTY()
+	TArray<FNpcData> NPCs;
+	
 	
 	
 	UPROPERTY()

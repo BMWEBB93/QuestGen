@@ -70,7 +70,12 @@ void ATownGenerator::CreateTown()
 				SpawnRotation,
 				SpawnParams
 			);		
-			Buildings.Add(SpawnedBuilding);
+			
+			if (IsValid(SpawnedBuilding))
+			{
+				SpawnedBuilding->SetFolderPath(TEXT("Town/Buildings"));
+				Buildings.Add(SpawnedBuilding);
+			}
 		}
 
 		// spawn the town centre
@@ -96,6 +101,11 @@ void ATownGenerator::CreateTown()
 			SpawnParams
 		);		
 		
+		if (IsValid(TownCentre))
+		{
+			TownCentre->SetFolderPath(TEXT("Town/TownCentre"));
+		}
+		
 		
 		// spawn the Job board
 		
@@ -107,13 +117,18 @@ void ATownGenerator::CreateTown()
 			);
 		
 		
-		// spawn town centre
+		// spawn job board
 		JobBoard = GetWorld()->SpawnActor<AJobBoard>(
 			JobBoardClass,
 			SpawnLocation,
 			FRotator(0.f , 270.f , 0.f),
 			SpawnParams
 		);		
+		
+		if (IsValid(JobBoard))
+		{
+			JobBoard->SetFolderPath(TEXT("Town/JobBoards"));
+		}
 		
 		AJobBoard* JobBoardActor = Cast<AJobBoard>(JobBoard);
 		JobBoardActor->TownData = TownData;

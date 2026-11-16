@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 
 #include "QuestGenerator/WorldGenerator/WorldGenerator.h"
+#include "QuestGenerator/BaseItem.h"
 #include  "QuestType.h"
 #include  "Quest.h"
 #include "Objective.h"
@@ -26,6 +27,9 @@ class QUESTGENERATOR_API UProceduralQuestGenerator : public UObject
 	
 	UFUNCTION()
 	void Initialise(UQuestManager* Manager);
+	
+	FIntPoint FindValidNeighbourCoord(FIntPoint TownPosition, TArray <ELocationType> ValidLocations);
+	FTransform FindValidTransformInChunk(FChunkData* TargetData);
 
 	UPROPERTY()
 	TObjectPtr<UQuestManager> QuestManager;

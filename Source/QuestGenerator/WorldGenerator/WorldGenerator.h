@@ -10,10 +10,24 @@
 #include "ChunkData.h"
 #include "River.h"
 #include "Town.h"
+
+#include "QuestGenerator/QuestSystem/Npc.h"
+#include "QuestGenerator/BaseItem.h"
+
+#include "QuestGenerator/BaseItem.h"
+#include "QuestGenerator/QuestSystem/Npc.h"
+
 #include "TownGenerator.h"
 #include "NameGenerator.h"
 
+#include "ChunkSpawnManager.h"
+
 #include "WorldGenerator.generated.h"
+
+
+class UChunkSpawnManager;
+class ANpc;
+class ABaseItem;
 
 UCLASS()
 class QUESTGENERATOR_API AWorldGenerator : public AActor
@@ -39,13 +53,21 @@ public:
 		
 	
 	void UpdateChunkNeighbours();
+	
 	void DetermineMountains();
+	
 	void DetermineBiomes();
+	
 	void CreateRiverSources();
+	
 	void CreateRiverPaths();
+	
 	void CarvePointInRiver(FChunkData* Chunk, int x, int y);
+	
 	void CreateLake(int HalfChunkLength, FRiver& River);
+	
 	void CarveRivers();
+	
 	bool PositionOnRiver(FIntPoint Coord);
 	
 	
@@ -65,7 +87,7 @@ public:
 
 	void GenerateMapData(FChunkData& chunkData);
 	
-	void GenerateFoliageData(FChunkData& chunkData);
+	void GenerateFoliageAndActorData(FChunkData& chunkData);
 
 	
 	int GetLOD(FIntPoint Coord);
@@ -83,6 +105,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	float GetHeightAtLocation(float WorldX, float WorldY);
+	
+	UFUNCTION(BlueprintCallable)
+	FIntPoint GetChunkCoordAtLocation(float WorldX, float WorldY);
+	
 	
 	UFUNCTION(BlueprintCallable)
 	ELocationType GetChunkBiomeAtLocation(float WorldX, float WorldY);
@@ -283,6 +309,41 @@ public:
 	float HumidityFrequency = 0.02f;
 	
 	
+	
+	////////////////////////////
+	/// NPC + Item settings
+	////////////////////////////
+	
+	
+	UFUNCTION()
+	int CreateQuestItem(FIntPoint Chunk,int ItemType, FTransform Transform);
+	
+	UFUNCTION()
+	int CreateNPC(FIntPoint Chunk,int NPCType, FTransform Transform);
+	
+	// NPC classes that can be spawned by the world
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Settings")
+	TArray<TSubclassOf<ANpc>> NPCClasses;
+	
+	// item classes that can be spawned by the world
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Settings")
+	TArray<TSubclassOf<ABaseItem>> ItemClasses;
+	
+	
+	
+	
+	// used to assign a unique id for each item
+	UPROPERTY()
+	int ItemIndex = 0;
+	
+	// used to assign a unique id for each npc
+	UPROPERTY()
+	int NPCIndex = 0;
+	
+	// reference to chunk spawn manager - used to spawn items and characters
+	UPROPERTY()
+	TObjectPtr<UChunkSpawnManager> ChunkSpawnManager;
+	
 	////////////////////////////
 	/// Town settings
 	////////////////////////////
@@ -328,27 +389,6 @@ public:
 	
 	UFUNCTION()
 	ELocationType GetTownTerrainType(FTown& Town);
-	
-	
-	// Town name generation
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
-	TArray<FText> NamePrefixes;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
-	TArray<FText> NameForestSuffixes;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
-	TArray<FText> NameSwampSuffixes;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
-	TArray<FText> NameBeachSuffixes;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
-	TArray<FText> NameMountainSuffixes;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Towns - Names")
-	TArray<FText> NameRiverSuffixes;
-
 	
 	
 	UPROPERTY(EditAnywhere, Category = "Towns")

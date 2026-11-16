@@ -29,3 +29,17 @@ void ABaseItem::Tick(float DeltaTime)
 
 }
 
+void ABaseItem::Interact()
+{
+	// get the game instance from the world
+	UGameInstance* GameInstance = GetGameInstance();
+
+	// get the quest manager from the game instance
+	UQuestManager* QuestManager = GameInstance->GetSubsystem<UQuestManager>();
+	
+	// check item with quest objectives 
+	QuestManager->CheckGatherQuestCompletion(ItemData.ItemTypeIndex);
+	QuestManager->CheckRetrieveQuestCompletion(ItemData.ItemID);
+
+}
+

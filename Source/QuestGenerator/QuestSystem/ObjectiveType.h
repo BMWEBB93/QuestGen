@@ -8,11 +8,13 @@
  * 
  */
 UENUM( BlueprintType )
-enum class ObjectiveType : uint8
+enum class EObjectiveType : uint8
 {
 	NONE UMETA(DisplayName = "NONE"),
 	Kill UMETA(DisplayName = "Kill"),
 	Interact UMETA(DisplayName = "Interact"),
+	Gather UMETA(DisplayName = "Gather"),
+	GetItem UMETA(DisplayName = "GetItem"),
 	Location	UMETA(DisplayName = "Location"),
 };
 

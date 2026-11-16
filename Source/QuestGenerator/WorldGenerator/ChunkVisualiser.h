@@ -42,6 +42,7 @@ public:
 	
 	UFUNCTION()
 	void CreateFoliage(const FChunkData& Data);
+
 	
 	UFUNCTION()
 	void ClearFoliage();
@@ -50,20 +51,20 @@ public:
 	UProceduralMeshComponent* Mesh;
 	
 	// chunk settings		
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY()
 	float Scale = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY()
 	int Resolution = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY()
 	int ChunkUVScale = 100;
 	
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Parameters")
 	int LOD = 1;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Parameters")
 	ELocationType Location = ELocationType::NONE;
 	
 	
@@ -77,13 +78,13 @@ public:
 	
 	
 	// trees
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Foliage Settings")
+	UPROPERTY()
 	UStaticMesh* TreeMesh;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Foliage Settings")
+	UPROPERTY()
 	UStaticMesh* GrassMesh;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Foliage Settings")
+	UPROPERTY()
 	UStaticMesh* PlantMesh;
 	
 	UPROPERTY()
@@ -96,13 +97,13 @@ public:
 	UHierarchicalInstancedStaticMeshComponent* PlantHISM;
 	
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Parameters")
 	FIntPoint WorldCoord = FIntPoint(0 , 0);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Parameters")
 	FIntPoint ChunkCoord = FIntPoint(0, 0);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	UPROPERTY()
 	TArray<float> Heights;
 	
 	
@@ -111,16 +112,16 @@ public:
 	
 	
 	// ocean settings
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Edge Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "World Edge Settings")
 	bool bIsInGameWorld = true;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Edge Settings")
+	UPROPERTY()
 	float OceanDepth = 1000.f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Edge Settings")
+	UPROPERTY()
 	float OceanFloorNoiseFrequency = 0.0002f;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "World Edge Settings")
+	UPROPERTY()
 	float OceanFloorNoiseScale = 500.f;
 
 };

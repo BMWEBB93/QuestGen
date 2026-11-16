@@ -5,7 +5,6 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "QuestGenerator/WorldGenerator/WorldGenerator.h"
-#include "QuestGenerator/WorldGenerator/ChunkData.h"
 
 
 
@@ -67,6 +66,89 @@ void UQuestManager::AcceptQuest(UQuest* NewQuest)
 
 }
 
-void UQuestManager::CheckQuestCompletion(UQuest* Quest)
+void UQuestManager::HandleObjectiveComplete(UQuest* Quest)
 {
+	Quest->Objectives[Quest->ActiveObjective]->ObjectiveState = EObjectiveState::Completed;
+	Quest->ActiveObjective++; 
+			
+	if (Quest->ActiveObjective >= Quest->Objectives.Num())
+	{
+		Quest->QuestState = EObjectiveState::Completed;
+	}
+}
+
+void UQuestManager::CheckLocationQuestCompletion(FIntPoint LocationToCheck)
+{
+	// loop active quests
+	for (UQuest* Quest : ActiveQuests)
+	{
+		// check the active objective is a location
+		if (Quest->Objectives[Quest->ActiveObjective]->ObjectiveType != EObjectiveType::Location)
+		{
+			continue;
+		}
+		// if the active objective location matches the location to check
+		if (Quest->Objectives[Quest->ActiveObjective]->TargetLocation == LocationToCheck)
+		{
+			// complete objective
+			HandleObjectiveComplete(Quest);
+		}
+	}
+}
+
+void UQuestManager::CheckGatherQuestCompletion(int ItemType)
+{
+	// loop active quests
+	for (UQuest* Quest : ActiveQuests)
+	{
+		// check the active objective is a location
+		if (Quest->Objectives[Quest->ActiveObjective]->ObjectiveType != EObjectiveType::Gather)
+		{
+			continue;
+		}
+		// if the active objective location matches the location to check
+		if (Quest->Objectives[Quest->ActiveObjective]->TargetItemType == ItemType)
+		{
+			// complete objective
+			HandleObjectiveComplete(Quest);
+		}
+	}
+}
+
+void UQuestManager::CheckRetrieveQuestCompletion(int ItemID)
+{
+	// loop active quests
+	for (UQuest* Quest : ActiveQuests)
+	{
+		// check the active objective is a location
+		if (Quest->Objectives[Quest->ActiveObjective]->ObjectiveType != EObjectiveType::GetItem)
+		{
+			continue;
+		}
+		// if the active objective location matches the location to check
+		if (Quest->Objectives[Quest->ActiveObjective]->TargetItem == ItemID)
+		{
+			// complete objective
+			HandleObjectiveComplete(Quest);
+		}
+	}
+}
+
+void UQuestManager::CheckKillQuestCompletion(int NPCId)
+{
+	// loop active quests
+	for (UQuest* Quest : ActiveQuests)
+	{
+		// check the active objective is a location
+		if (Quest->Objectives[Quest->ActiveObjective]->ObjectiveType != EObjectiveType::Kill)
+		{
+			continue;
+		}
+		// if the active objective location matches the location to check
+		if (Quest->Objectives[Quest->ActiveObjective]->TargetItemType == NPCId)
+		{
+			// complete objective
+			HandleObjectiveComplete(Quest);
+		}
+	}
 }

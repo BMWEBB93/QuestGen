@@ -244,6 +244,7 @@ void AChunkVisualiser::CreateFoliage(const FChunkData& Data)
 	PlantHISM->AddInstances(Data.PlantTransforms, false, false);
 }
 
+
 void AChunkVisualiser::ClearFoliage()
 {
 	TreeHISM->ClearInstances();

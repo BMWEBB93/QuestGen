@@ -29,17 +29,26 @@ class QUESTGENERATOR_API UObjective : public UObject
     FText ObjectiveDescription;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    ObjectiveType ObjectiveType;
+    EObjectiveType ObjectiveType;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     EObjectiveState ObjectiveState;
     
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    ABaseCharacter* TargetCharacter;
+    int TargetCharacter;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    ABaseItem* TargetItem;
+    int TargetItem;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    int TargetItemType;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    int TargetCount = 1;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    int CurrentCount = 0;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FIntPoint TargetLocation;

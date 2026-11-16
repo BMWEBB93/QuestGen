@@ -14,6 +14,7 @@ AWorldGenerator::AWorldGenerator()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
 
 }
 
@@ -101,6 +102,11 @@ void AWorldGenerator::Tick(float DeltaTime)
 					{
 						SpawnTown(*data);
 					}
+					if (PendingChunkRebuilds[0]->LOD == 1)
+					{
+						ChunkSpawnManager->SpawnItems(*data);
+						ChunkSpawnManager->SpawnNPCs(*data);
+					}					
 				}
 				
 				// update location data in chunk
@@ -991,6 +997,20 @@ void AWorldGenerator::GenerateWorld()
 	ChunkSize = ChunkScale * ChunkResolution;
 	
 	
+	// create the chunk spawn manager
+	ChunkSpawnManager = NewObject<UChunkSpawnManager>(this);
+	
+	// set chunk sizes in spawn manager so that spawning locations are correct
+	ChunkSpawnManager->ChunkScale = ChunkScale;
+	ChunkSpawnManager->ChunkResolution = ChunkResolution;
+	ChunkSpawnManager->ChunkSize = ChunkSize;
+	
+	// set the classes used in chunk spawn manager
+	ChunkSpawnManager->ItemClasses = ItemClasses;
+	ChunkSpawnManager->NPCClasses = NPCClasses;
+	ChunkSpawnManager->WorldGenerator = this;
+	
+	
 	// Create noise offset from world seed
 	FRandomStream SeedStream(Seed);
 	SeedOffsetX = SeedStream.FRandRange(-100000.f, 100000.f);
@@ -1078,7 +1098,7 @@ void AWorldGenerator::GenerateWorld()
 		for (int x = 0; x < WorldSize; x++)
 		{			
 			FChunkData* Chunk = ChunkData.Find(FIntPoint(x - WorldSize / 2,  y - WorldSize / 2));				
-			GenerateFoliageData(*Chunk);
+			GenerateFoliageAndActorData(*Chunk);
 		}
 	}
 	
@@ -1156,6 +1176,14 @@ void AWorldGenerator::GenerateWorld()
 			// Generate mesh with terrain data
 			Chunk->GenerateChunk(Data, TerrainMaterial, LODBoundary, BeachValue);
 			Chunk->CreateFoliage(*Data);
+			
+			// spawn actors
+			if (Data->Location != ELocationType::Ocean && Chunk->LOD == 1)
+			{
+				ChunkSpawnManager->SpawnItems(*Data);
+				ChunkSpawnManager->SpawnNPCs(*Data);
+			}
+			
 			// create the town
 			if (Data->bHasTown && !Data->bTownIsSpawned)
 			{
@@ -1203,6 +1231,13 @@ void AWorldGenerator::GenerateWorld()
 
 void AWorldGenerator::ClearWorld()
 {
+	if (IsValid(ChunkSpawnManager))
+	{
+		ChunkSpawnManager->ClearAll();
+		ChunkSpawnManager = nullptr;
+	}
+
+	
 	// Destroy all spawned town actors
 	for (ATownGenerator* Town : TownGenerators)
 	{
@@ -1708,7 +1743,7 @@ void AWorldGenerator::GenerateMapData(FChunkData& chunkData)
 
 }
 
-void AWorldGenerator::GenerateFoliageData(FChunkData& chunkData)
+void AWorldGenerator::GenerateFoliageAndActorData(FChunkData& chunkData)
 {
 	
 	ChunkSize = ChunkResolution * ChunkScale;
@@ -1826,7 +1861,44 @@ void AWorldGenerator::GenerateFoliageData(FChunkData& chunkData)
 						// add to data
 						chunkData.PlantTransforms.Add(Transform);
 					}					
+					
+					// Spawn wood
+					else if (Choice < 0.4f && Angle <= 20.f && Height > 50.f)
+					{
+						// add random offset to foliage that are not cliffs	
+						Transform.SetLocation(FVector(
+							Transform.GetLocation().X + RandomOffsetX, 
+							Transform.GetLocation().Y + RandomOffsetY,
+							Height));
+							
+						// set a random rotation
+						Transform.SetRotation(FRotator(
+							Stream.FRandRange(-5.f, 5.f),
+							Stream.FRandRange(0.f, 360.f), 
+							Stream.FRandRange(-5.f, 5.f)).Quaternion());
+							
+						// set a random scale
+						float xyScale = Stream.FRandRange(0.8, 1.2f);
+						float zScale = Stream.FRandRange(0.8f, 1.5f);
+
+						// apply scale
+						Transform.SetScale3D(FVector(xyScale, xyScale, zScale));
+						
+						// create the item and set values
+						FItemData NewItem;
+						NewItem.ItemID = ItemIndex; 
+						ItemIndex++; // increment index for next item
+						
+						NewItem.ItemTypeIndex = 1;
+						NewItem.ItemName = FString("Wood");
+						NewItem.Transform = Transform;
+						
+						
+						// add to data
+						chunkData.Items.Add(NewItem);
+					}					
 								
+
 					break;
 				}
 			
@@ -1855,7 +1927,73 @@ void AWorldGenerator::GenerateFoliageData(FChunkData& chunkData)
 						Transform.SetScale3D(FVector(xyScale, xyScale, zScale));
 						// add to data
 						chunkData.PlantTransforms.Add(Transform);
+					}			
+					
+					// Spawn Mushrooms
+					else if (Choice < 0.35f && Angle <= 20.f && Height > 10.f && Height < 50.f)
+					{
+						// add random offset to foliage that are not cliffs	
+						Transform.SetLocation(FVector(
+							Transform.GetLocation().X + RandomOffsetX, 
+							Transform.GetLocation().Y + RandomOffsetY,
+							Height));
+							
+						// set a random rotation
+						Transform.SetRotation(FRotator(
+							Stream.FRandRange(-5.f, 5.f),
+							Stream.FRandRange(0.f, 360.f), 
+							Stream.FRandRange(-5.f, 5.f)).Quaternion());
+							
+						// set a random scale
+						float xyScale = Stream.FRandRange(0.8, 1.2f);
+						float zScale = Stream.FRandRange(0.8f, 1.5f);
+
+						// apply scale
+						Transform.SetScale3D(FVector(xyScale, xyScale, zScale));
+						
+						// create the item and set values
+						FItemData NewItem;
+						NewItem.ItemID = ItemIndex; 
+						ItemIndex++; // increment index for next item
+						
+						NewItem.ItemTypeIndex = 0;
+						NewItem.ItemName = FString("Mushroom");
+						NewItem.Transform = Transform;
+						
+						
+						// add to data
+						chunkData.Items.Add(NewItem);
 					}					
+					
+					break;
+				}
+			
+			case ELocationType::Grassland:
+				{
+					// Spawn plants
+					if (Choice < 0.25f && Angle <= 10.f && Height > -20.f)
+					{
+						// add random offset to foliage that are not cliffs	
+						Transform.SetLocation(FVector(
+							Transform.GetLocation().X + RandomOffsetX, 
+							Transform.GetLocation().Y + RandomOffsetY,
+							Height));
+							
+						// set a random rotation
+						Transform.SetRotation(FRotator(
+							Stream.FRandRange(-5.f, 5.f),
+							Stream.FRandRange(0.f, 360.f), 
+							Stream.FRandRange(-5.f, 5.f)).Quaternion());
+							
+						// set a random scale
+						float xyScale = Stream.FRandRange(1.f, 2.f);
+						float zScale = Stream.FRandRange(1.f, 2.f);
+
+						// apply scale
+						Transform.SetScale3D(FVector(xyScale, xyScale, zScale));
+						// add to data
+						chunkData.PlantTransforms.Add(Transform);
+					}
 					break;
 				}
 			
@@ -2008,9 +2146,11 @@ void AWorldGenerator::ShiftLandChunks(FIntPoint Direction)
 						}
 					}
 					TownGenerators.Remove(TownGenerator);
-					DespawnTown(TownGenerator, *Data);	
-					
+					DespawnTown(TownGenerator, *Data);						
 				}
+				// despawn actors in this chunk
+				ChunkSpawnManager->DeSpawnNPCs(*Data);
+				ChunkSpawnManager->DeSpawnItems(*Data);
 			}
 		
 			
@@ -2069,6 +2209,18 @@ void AWorldGenerator::ShiftLandChunks(FIntPoint Direction)
 		if (bShouldRegenerate)
 		{
 			PendingChunkRebuilds.Add(Chunk);
+		}
+		
+		// despawn actors not on lod 1
+		if (LastLOD == 1 && NewLOD == 2)
+		{
+			// get the chunk data
+			FChunkData* Data = ChunkData.Find(Chunk->WorldCoord);
+			if (Data) // check data exists
+			{
+				ChunkSpawnManager->DeSpawnItems(*Data);
+				ChunkSpawnManager->DeSpawnNPCs(*Data);
+			}			
 		}
 	}
 	
@@ -2244,6 +2396,18 @@ float AWorldGenerator::GetHeightAtLocation(float WorldX, float WorldY)
 	return FMath::Lerp(Bottom, Top, FracY);
 }
 
+FIntPoint AWorldGenerator::GetChunkCoordAtLocation(float WorldX, float WorldY)
+{
+	ChunkSize = ChunkScale * ChunkResolution;
+
+	// Convert world position to chunk coordinate
+	int ChunkX = FMath::FloorToInt(WorldX / ChunkSize);
+	int ChunkY = FMath::FloorToInt(WorldY / ChunkSize);
+
+	FIntPoint ChunkCoord(ChunkX, ChunkY);	
+	return  ChunkCoord;
+}
+
 ELocationType AWorldGenerator::GetChunkBiomeAtLocation(float WorldX, float WorldY)
 {
 	// get the size of a chunk (length of 1 axis)
@@ -2263,6 +2427,46 @@ ELocationType AWorldGenerator::GetChunkBiomeAtLocation(float WorldX, float World
 		return ELocationType::Ocean;
 	}
 	return Chunk->Location;
+}
+
+int AWorldGenerator::CreateQuestItem(FIntPoint Chunk, int ItemType,  FTransform Transform)
+{
+	FChunkData* Data =  ChunkData.Find(Chunk);
+	
+	// create the item and set values
+	FItemData NewItem;
+	NewItem.ItemID = ItemIndex; 
+	ItemIndex++; // increment index for next item
+						
+	NewItem.ItemTypeIndex = ItemType;
+	NewItem.ItemName = ItemClasses[ItemType]->GetDefaultObject<ABaseItem>()->ItemName;
+	NewItem.Transform = Transform;
+						
+						
+	// add to data
+	Data->Items.Add(NewItem);
+	
+	return NewItem.ItemID; // return the item ID for quest tracking
+}
+
+int AWorldGenerator::CreateNPC(FIntPoint Chunk, int NPCType, FTransform Transform)
+{
+	FChunkData* Data =  ChunkData.Find(Chunk);
+	
+	// create the item and set values
+	FNpcData NewNPC;
+	NewNPC.NpcID = NPCIndex; 
+	NPCIndex++; // increment index for next item
+						
+	NewNPC.NpcTypeIndex = NPCType;
+	NewNPC.Name = ItemClasses[NPCType]->GetDefaultObject<ABaseItem>()->ItemName;
+	NewNPC.Transform = Transform;
+						
+						
+	// add to data
+	Data->NPCs.Add(NewNPC);
+	
+	return NewNPC.NpcID; // return the item ID for quest tracking
 }
 
 void AWorldGenerator::SpawnTown(FChunkData& Data)
@@ -2287,6 +2491,9 @@ void AWorldGenerator::SpawnTown(FChunkData& Data)
 	   TownGeneratorClass,
 	   SpawnTransform	   
    );
+	
+	TownGenerator->SetFolderPath(TEXT("Town"));
+
 	
 	// add data to the town 
 	TownGenerator->TownData = Data.Town;
