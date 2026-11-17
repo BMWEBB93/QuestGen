@@ -241,7 +241,7 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 				
 				// set the description of quest
 				Quest->QuestDescription = FText::Format(
-				FText::FromString("Find {0}, they were last seen in the {1} to the {2}"),
+				FText::FromString("Find and kill {0}, they were last seen in the {1} to the {2}"),
 					FText::FromString(Name),
 					FText::FromString(TargetBiome),
 					FText::FromString(Direction)
@@ -249,7 +249,7 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 				
 				// set the description of objective
 				Objective->ObjectiveDescription = FText::Format(				
-				FText::FromString("Find {0}, they were last seen in the {1} to the {2}"),
+				FText::FromString("Find and kill {0}, they were last seen in the {1} to the {2}"),
 					FText::FromString(Name),
 					FText::FromString(TargetBiome),
 					FText::FromString(Direction)

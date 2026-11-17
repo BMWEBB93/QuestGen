@@ -87,7 +87,7 @@ void UChunkSpawnManager::SpawnItems(FChunkData& Data)
 		FTransform SpawnTransform = FTransform(
 			Item.Transform.GetRotation(),
 			Item.Transform.GetLocation() + ChunkPosition,
-			Item.Transform.GetScale3D()
+			FVector(1.f)
 		);
 		
 		// start item spawning
@@ -115,13 +115,7 @@ void UChunkSpawnManager::SpawnItems(FChunkData& Data)
 }
 
 void UChunkSpawnManager::DeSpawnNPCs(FChunkData& Data)
-{
-	UE_LOG(LogTemp, Warning, TEXT("===== DESPAWN NPCS ====="));
-	UE_LOG(LogTemp, Warning, TEXT("Chunk: %s"), *Data.WorldCoord.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Spawned NPC array size: %d"), SpawnedNPCs.Num());
-	UE_LOG(LogTemp, Warning, TEXT("Chunk NPC data size: %d"), Data.NPCs.Num());
-
-	
+{	
 	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
 
 	for (int i = SpawnedNPCs.Num() - 1; i >= 0; --i)
@@ -180,7 +174,7 @@ void UChunkSpawnManager::DeSpawnItems(FChunkData& Data)
 				FTransform ActorTransform = FTransform(
 					Item->GetActorTransform().GetRotation(),
 					Item->GetActorLocation() - ChunkPosition,
-					Item->GetActorTransform().GetScale3D()
+					FVector(1.f)
 				);
 				
 				ItemData.Transform = ActorTransform;
