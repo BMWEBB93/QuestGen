@@ -73,7 +73,11 @@ void UQuestManager::HandleObjectiveComplete(UQuest* Quest)
 			
 	if (Quest->ActiveObjective >= Quest->Objectives.Num())
 	{
+		Quest->ActiveObjective = 0;
 		Quest->QuestState = EObjectiveState::Completed;
+		
+		ActiveQuests.Remove(Quest);
+		CompletedQuests.Add(Quest);
 	}
 }
 

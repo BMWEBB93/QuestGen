@@ -40,7 +40,7 @@ public:
 	TArray<UQuest*> ActiveQuests;
 	
 	// Quests completed by the player
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UQuest*> CompletedQuests;
 	
 	UPROPERTY()

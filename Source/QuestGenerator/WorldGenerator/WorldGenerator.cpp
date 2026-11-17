@@ -57,9 +57,23 @@ void AWorldGenerator::Tick(float DeltaTime)
 			);
 		
 		// find if the player has moved to another chunk
-		FIntPoint ChunkShiftDirection = PlayerChunkCoord - LastPlayerCoord;	
+		FIntPoint ChunkShiftDirection = PlayerChunkCoord - LastPlayerCoord;
+		
+		// if the player has moved chunks check quest manager for quests 
+		if (ChunkShiftDirection.X != 0 || ChunkShiftDirection.Y != 0)
+		{
+			// get the game instance from the world
+			UGameInstance* GameInstance = GetGameInstance();
+
+			// get the quest manager from the game instance
+			UQuestManager* QuestManager = GameInstance->GetSubsystem<UQuestManager>();
+	
+			// check item with quest objectives 
+			QuestManager->CheckLocationQuestCompletion(PlayerChunkCoord);
+		}
+		// shift the chunks
 		ShiftsToMake += ChunkShiftDirection;
-		LastPlayerCoord = PlayerChunkCoord;
+		LastPlayerCoord = PlayerChunkCoord; // update last player coord
 		
 		// shift the chunks towards the direction the player moves
 		HandleChunkShifting();

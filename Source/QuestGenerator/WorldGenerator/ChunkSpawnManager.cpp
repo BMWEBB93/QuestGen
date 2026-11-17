@@ -33,77 +33,95 @@ void UChunkSpawnManager::ClearAll()
 
 void UChunkSpawnManager::SpawnNPCs(FChunkData& Data)
 {	
-	for (FNpcData NPC : Data.NPCs)
-	{
-		ANpc* SpawnedCharacter =
-			GetWorld()->SpawnActorDeferred<ANpc>(
-			NPCClasses[NPC.NpcTypeIndex],
-			NPC.Transform
-		);
-		
-		ANpc* SpawnedNPC = Cast<ANpc>(SpawnedCharacter);		
-		if (SpawnedNPC)
-		{
-			SpawnedNPC->NPCData = NPC;
-			SpawnedNPC->CurrentChunkCoord = Data.WorldCoord;
-			SpawnedNPC->WorldGenerator = WorldGenerator;
-		}
-		
-		SpawnedCharacter->SetFolderPath(TEXT("NPC"));
+	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
 
-		
+	for (FNpcData& NPC : Data.NPCs)
+	{
+		if (NPC.bIsSpawned)
+		{
+			continue;
+		}
+			
+
+	
+		// create transform using chunk position
+		FTransform SpawnTransform = FTransform(
+			NPC.Transform.GetRotation(),
+			NPC.Transform.GetLocation() + ChunkPosition,
+			NPC.Transform.GetScale3D()
+		);
+
+		ANpc* SpawnedNPC = GetWorld()->SpawnActorDeferred<ANpc>(
+			NPCClasses[NPC.NpcTypeIndex],
+			SpawnTransform
+		);
+	
+		SpawnedNPC->NPCData = NPC;
+		SpawnedNPC->CurrentChunkCoord = Data.WorldCoord;
+		SpawnedNPC->WorldGenerator = WorldGenerator;
+
+		SpawnedNPC->SetFolderPath(TEXT("NPC"));
+
+		SpawnedNPC->FinishSpawning(SpawnTransform);
+
 		NPC.bIsSpawned = true;
-		
-		SpawnedCharacter->FinishSpawning(NPC.Transform);
-		SpawnedNPCs.Add(SpawnedCharacter);
+
+		SpawnedNPCs.Add(SpawnedNPC);
 	}
 }
 
 void UChunkSpawnManager::SpawnItems(FChunkData& Data)
-{
+{	
 	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
 		
 	// loop through items in chunk data
-	for (FItemData Item : Data.Items)
+	for (FItemData& Item : Data.Items)
 	{
-		if (!Item.bIsSpawned)
+		if (Item.bIsSpawned)
 		{
-			// create transform using chunk position
-			FTransform SpawnTransform = FTransform(
-				Item.Transform.GetRotation(),
-				Item.Transform.GetLocation() + ChunkPosition,
-				Item.Transform.GetScale3D()
-			);
+			continue;
+		}
+			
+	
+		// create transform using chunk position
+		FTransform SpawnTransform = FTransform(
+			Item.Transform.GetRotation(),
+			Item.Transform.GetLocation() + ChunkPosition,
+			Item.Transform.GetScale3D()
+		);
 		
-			// start item spawning
-			ABaseItem* ItemToSpawn =
-				GetWorld()->SpawnActorDeferred<ABaseItem>(
-				ItemClasses[Item.ItemTypeIndex],
-				SpawnTransform
-			);
+		// start item spawning
+		ABaseItem* ItemToSpawn =
+			GetWorld()->SpawnActorDeferred<ABaseItem>(
+			ItemClasses[Item.ItemTypeIndex],
+			SpawnTransform
+		);
 		
-			ABaseItem* SpawnedItem = Cast<ABaseItem>(ItemToSpawn);		
-			if (SpawnedItem)
-			{
-				SpawnedItem->ItemData = Item;
-				SpawnedItem->CurrentChunkCoord = Data.WorldCoord;
-			}
+		ABaseItem* SpawnedItem = Cast<ABaseItem>(ItemToSpawn);		
+		if (SpawnedItem)
+		{
+			SpawnedItem->ItemData = Item;
+			SpawnedItem->CurrentChunkCoord = Data.WorldCoord;
+		}
 		
-			Item.bIsSpawned = true;
+		Item.bIsSpawned = true;
 		
-			ItemToSpawn->SetFolderPath(TEXT("Items"));
+		ItemToSpawn->SetFolderPath(TEXT("Items"));
 
 			
-			ItemToSpawn->FinishSpawning(SpawnTransform);
-			SpawnedItems.Add(ItemToSpawn);
-		}	
+		ItemToSpawn->FinishSpawning(SpawnTransform);
+		SpawnedItems.Add(ItemToSpawn);
 	}
 }
 
 void UChunkSpawnManager::DeSpawnNPCs(FChunkData& Data)
 {
-	for (ANpc* NPC : SpawnedNPCs)
+	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
+
+	for (int i = SpawnedNPCs.Num() - 1; i >= 0; --i)
 	{
+		ANpc* NPC = SpawnedNPCs[i];
+
 		// skip npcs not on this chunk
 		if (NPC->CurrentChunkCoord != Data.WorldCoord)
 		{
@@ -111,23 +129,32 @@ void UChunkSpawnManager::DeSpawnNPCs(FChunkData& Data)
 		}
 		
 		// match the npc in the chunk data
-		for (FNpcData NPCData : Data.NPCs)
+		for (FNpcData& NPCData : Data.NPCs)
 		{
 			if (NPCData.NpcID == NPC->NPCData.NpcID)
 			{
 				NPCData.bIsSpawned = false;
-				NPCData.Transform = NPC->GetActorTransform();
+				
+				FTransform ActorTransform = FTransform(
+					NPC->GetActorTransform().GetRotation(),
+					NPC->GetActorLocation() - ChunkPosition,
+					NPC->GetActorTransform().GetScale3D()
+				);		
+				
+				NPCData.Transform = ActorTransform;
 			}
 		}
 		NPC->Destroy();
-		SpawnedNPCs.Remove(NPC);
-	}
+		SpawnedNPCs.RemoveAt(i);
+	}	
 }
 
 void UChunkSpawnManager::DeSpawnItems(FChunkData& Data)
 {
+	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
+
 	// loop through all spawned items
-	for (int32 i = SpawnedItems.Num() - 1; i >= 0; --i)
+	for (int i = SpawnedItems.Num() - 1; i >= 0; --i)
 	{
 		ABaseItem* Item = SpawnedItems[i]; // get the item
 
@@ -143,7 +170,14 @@ void UChunkSpawnManager::DeSpawnItems(FChunkData& Data)
 			if (ItemData.ItemID == Item->ItemData.ItemID) // if the id matches the spawned item
 			{
 				ItemData.bIsSpawned = false;
-				ItemData.Transform = Item->GetActorTransform();
+				
+				FTransform ActorTransform = FTransform(
+					Item->GetActorTransform().GetRotation(),
+					Item->GetActorLocation() - ChunkPosition,
+					Item->GetActorTransform().GetScale3D()
+				);
+				
+				ItemData.Transform = ActorTransform;
 			}
 		}
 		

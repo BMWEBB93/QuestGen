@@ -54,7 +54,7 @@ FIntPoint UProceduralQuestGenerator::FindValidNeighbourCoord(FIntPoint TownPosit
 
 FTransform UProceduralQuestGenerator::FindValidTransformInChunk(FChunkData* TargetData)
 {
-	// initialise item position
+	// initialise position
 	FVector ItemPosition = FVector(0.f, 0.f, 0.f);
 				
 	// keep checking positions for valid locations
