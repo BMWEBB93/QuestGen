@@ -40,6 +40,7 @@ void ABaseItem::Interact()
 	// check item with quest objectives 
 	QuestManager->CheckGatherQuestCompletion(ItemData.ItemTypeIndex);
 	QuestManager->CheckRetrieveQuestCompletion(ItemData.ItemID);
-
+	
+	Destroy();
 }
 

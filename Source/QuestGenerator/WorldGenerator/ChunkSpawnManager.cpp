@@ -116,6 +116,12 @@ void UChunkSpawnManager::SpawnItems(FChunkData& Data)
 
 void UChunkSpawnManager::DeSpawnNPCs(FChunkData& Data)
 {
+	UE_LOG(LogTemp, Warning, TEXT("===== DESPAWN NPCS ====="));
+	UE_LOG(LogTemp, Warning, TEXT("Chunk: %s"), *Data.WorldCoord.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Spawned NPC array size: %d"), SpawnedNPCs.Num());
+	UE_LOG(LogTemp, Warning, TEXT("Chunk NPC data size: %d"), Data.NPCs.Num());
+
+	
 	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
 
 	for (int i = SpawnedNPCs.Num() - 1; i >= 0; --i)
