@@ -59,6 +59,7 @@ void UChunkSpawnManager::SpawnNPCs(FChunkData& Data)
 		SpawnedNPC->NPCData = NPC;
 		SpawnedNPC->CurrentChunkCoord = Data.WorldCoord;
 		SpawnedNPC->WorldGenerator = WorldGenerator;
+		SpawnedNPC->ChunkSpawnManager = this;
 
 		SpawnedNPC->SetFolderPath(TEXT("NPC"));
 
@@ -102,6 +103,8 @@ void UChunkSpawnManager::SpawnItems(FChunkData& Data)
 		{
 			SpawnedItem->ItemData = Item;
 			SpawnedItem->CurrentChunkCoord = Data.WorldCoord;
+			SpawnedItem->ChunkSpawnManager = this;	
+			SpawnedItem->WorldGenerator = WorldGenerator;
 		}
 		
 		Item.bIsSpawned = true;
@@ -122,6 +125,13 @@ void UChunkSpawnManager::DeSpawnNPCs(FChunkData& Data)
 	{
 		ANpc* NPC = SpawnedNPCs[i];
 
+		// Remove invalid references from the array
+		if (!IsValid(NPC))
+		{
+			SpawnedNPCs.RemoveAt(i);
+			continue;
+		}		
+		
 		// skip npcs not on this chunk
 		if (NPC->CurrentChunkCoord != Data.WorldCoord)
 		{
@@ -153,11 +163,19 @@ void UChunkSpawnManager::DeSpawnItems(FChunkData& Data)
 {
 	FVector ChunkPosition = FVector(Data.WorldCoord.X * ChunkSize, Data.WorldCoord.Y * ChunkSize, 0.f);		
 
-	// loop through all spawned items
+	// loop backwards through all spawned items
 	for (int i = SpawnedItems.Num() - 1; i >= 0; --i)
 	{
 		ABaseItem* Item = SpawnedItems[i]; // get the item
 
+		if (!IsValid(Item))
+		{
+			SpawnedItems.RemoveAt(i);
+			continue;
+		}
+		
+		
+		
 		// skip items not relating to this chunk
 		if (Item->CurrentChunkCoord != Data.WorldCoord)
 		{
@@ -184,4 +202,32 @@ void UChunkSpawnManager::DeSpawnItems(FChunkData& Data)
 		Item->Destroy();
 		SpawnedItems.RemoveAt(i);
 	}
+}
+
+void UChunkSpawnManager::RemoveItem(int ItemIndex)
+{
+	// loop backwards through all spawned items
+	for (int i = SpawnedItems.Num() - 1; i >= 0; --i)
+	{
+		ABaseItem* Item = SpawnedItems[i];
+		
+		if (Item->ItemData.ItemID == ItemIndex)
+		{
+			SpawnedItems.RemoveAt(i);
+		}
+	}	
+}
+
+void UChunkSpawnManager::RemoveNpc(int NpcIndex)
+{
+	// loop backwards through all spawned items
+	for (int i = SpawnedNPCs.Num() - 1; i >= 0; --i)
+	{
+		ANpc* Npc = SpawnedNPCs[i];
+		
+		if (Npc->NPCData.NpcID == NpcIndex)
+		{
+			SpawnedNPCs.RemoveAt(i);
+		}
+	}	
 }

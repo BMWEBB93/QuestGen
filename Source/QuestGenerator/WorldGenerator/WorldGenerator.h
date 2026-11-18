@@ -321,6 +321,12 @@ public:
 	UFUNCTION()
 	int CreateNPC(FIntPoint Chunk,int NPCType, FTransform Transform);
 	
+	UFUNCTION()
+	void RemoveItem(FIntPoint ChunkCoord,int ItemID);
+	
+	UFUNCTION()
+	void RemoveNpc(FIntPoint ChunkCoord,int NpcID);
+	
 	// NPC classes that can be spawned by the world
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Settings")
 	TArray<TSubclassOf<ANpc>> NPCClasses;

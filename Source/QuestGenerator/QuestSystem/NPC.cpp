@@ -5,7 +5,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "QuestGenerator/WorldGenerator/WorldGenerator.h"
-
+#include "QuestGenerator/WorldGenerator/ChunkSpawnManager.h"
 
 ANpc::ANpc()
 {
@@ -49,6 +49,16 @@ void ANpc::Death()
 	UQuestManager* QuestManager = GameInstance->GetSubsystem<UQuestManager>();
 	
 	// check item with quest objectives 
-	QuestManager->CheckKillQuestCompletion(NPCData.NpcID);
+	bool bIsBountyQuest  = QuestManager->CheckKillQuestCompletion(NPCData.NpcID);
 
+	if (bIsBountyQuest)
+	{
+		// stop tracking npc in chunk spawn manager
+		ChunkSpawnManager->RemoveNpc(NPCData.NpcID);
+	
+		WorldGenerator->RemoveNpc(CurrentChunkCoord, NPCData.NpcID);
+	
+		// destroy npc
+		Destroy();
+	}
 }

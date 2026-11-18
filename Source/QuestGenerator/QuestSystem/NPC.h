@@ -13,7 +13,7 @@
  * 
  */
 class AWorldGenerator;
-
+class UChunkSpawnManager;
 
 UCLASS(Blueprintable)
 class QUESTGENERATOR_API ANpc : public ABaseCharacter
@@ -38,6 +38,9 @@ public:
 	
 	UPROPERTY()
 	AWorldGenerator* WorldGenerator;	
+	
+	UPROPERTY()
+	UChunkSpawnManager* ChunkSpawnManager;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC")
 	FIntPoint CurrentChunkCoord;

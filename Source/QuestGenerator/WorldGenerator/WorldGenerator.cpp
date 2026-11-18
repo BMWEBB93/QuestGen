@@ -7,6 +7,7 @@
 #include "LocationType.h"
 
 #include  "Plate.h"
+#include "Chaos/Character/CharacterGroundConstraintContainer.h"
 
 
 // Sets default values
@@ -2481,6 +2482,46 @@ int AWorldGenerator::CreateNPC(FIntPoint Chunk, int NPCType, FTransform Transfor
 	Data->NPCs.Add(NewNPC);
 	
 	return NewNPC.NpcID; // return the item ID for quest tracking
+}
+
+void AWorldGenerator::RemoveItem(FIntPoint ChunkCoord, int ItemID)
+{
+	// get the chunk from the coordinate
+	FChunkData* Chunk = ChunkData.Find(ChunkCoord);
+		
+	// loop through the item data in the chunk
+	for (int i = 0; i < Chunk->Items.Num() ;i++)
+	{
+		// get the item 
+		FItemData& Item = Chunk->Items[i];
+		
+		// if item id matches, remove item
+		if (Item.ItemID == ItemID) 
+		{
+			Chunk->Items.RemoveAt(i);
+			break;
+		}
+	}
+}
+
+void AWorldGenerator::RemoveNpc(FIntPoint ChunkCoord, int NpcID)
+{
+	// get the chunk from the coordinate
+	FChunkData* Chunk = ChunkData.Find(ChunkCoord);
+		
+	// loop through the npc data in the chunk
+	for (int i = 0; i < Chunk->NPCs.Num() ;i++)
+	{
+		// get the npc 
+		FNpcData& Npc = Chunk->NPCs[i];
+		
+		// if npc id matches, remove item
+		if (Npc.NpcID == NpcID) 
+		{
+			Chunk->NPCs.RemoveAt(i);
+			break;
+		}
+	}
 }
 
 void AWorldGenerator::SpawnTown(FChunkData& Data)

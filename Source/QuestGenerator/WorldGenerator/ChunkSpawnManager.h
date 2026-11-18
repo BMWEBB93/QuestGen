@@ -44,6 +44,14 @@ public:
 	UFUNCTION()
 	void DeSpawnItems(FChunkData& Data);
 	
+	
+	UFUNCTION()
+	void RemoveItem(int ItemIndex);
+	
+	UFUNCTION()
+	void RemoveNpc(int NpcIndex);
+
+	
 	// reference the world generator
 	UPROPERTY()
 	AWorldGenerator* WorldGenerator = nullptr;

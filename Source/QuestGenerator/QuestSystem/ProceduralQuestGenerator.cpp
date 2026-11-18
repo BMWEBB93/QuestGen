@@ -78,7 +78,9 @@ FTransform UProceduralQuestGenerator::FindValidTransformInChunk(FChunkData* Targ
 		// if the location is valid continue with tis location
 		if (Height > 0.f)
 		{
-			ItemPosition = FVector(X, Y, Height);
+			// offset to make characters not spawn halfway in the terrain
+			float HeightOffset = 100.f; 
+			ItemPosition = FVector(X, Y, Height + HeightOffset);
 			bIsLocationValid = true;
 		}
 	}
@@ -189,6 +191,7 @@ UQuest* UProceduralQuestGenerator::GenerateQuest(FTown TownData)
 				// 0 = Warrior, 1 = Peasant man, 2 = Peasant Girl
 				// Randomly pick an npc 
 				int RandomNPC = FMath::RandRange(0, WorldGenerator->NPCClasses.Num() - 1);				
+				
 				
 				// check surrounding chunks 2 away for valid positions
 				TArray<ELocationType> ValidLocations = {

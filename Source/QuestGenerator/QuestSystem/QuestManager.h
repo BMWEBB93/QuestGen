@@ -61,18 +61,18 @@ public:
 	
 	// Check quest completion for go to location quest types
 	UFUNCTION(BlueprintCallable, Category = "Quests")
-	void CheckLocationQuestCompletion(FIntPoint LocationToCheck);
+	bool CheckLocationQuestCompletion(FIntPoint LocationToCheck);
 	
 	// Check quest completion for Gather quest types
 	UFUNCTION(BlueprintCallable, Category = "Quests")
-	void CheckGatherQuestCompletion(int ItemType);
+	bool CheckGatherQuestCompletion(int ItemType);
 	
 	// Check quest completion for Retieve quest types
 	UFUNCTION(BlueprintCallable, Category = "Quests")
-	void CheckRetrieveQuestCompletion(int ItemID);
+	bool CheckRetrieveQuestCompletion(int ItemID);
 	
 	
 	// Check quest completion for bounty quest types
 	UFUNCTION(BlueprintCallable, Category = "Quests")
-	void CheckKillQuestCompletion(int NPCId);
+	bool CheckKillQuestCompletion(int NPCId);
 };

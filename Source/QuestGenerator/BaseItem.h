@@ -6,9 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "QuestGenerator/WorldGenerator/ItemData.h"
 #include "QuestGenerator/QuestSystem/QuestManager.h"
+#include "QuestGenerator/WorldGenerator/WorldGenerator.h"
+
+#include "QuestGenerator/WorldGenerator/ChunkSpawnManager.h"
 
 #include "BaseItem.generated.h"
-
 
 
 UCLASS()
@@ -38,6 +40,13 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FIntPoint CurrentChunkCoord;
+	
+	UPROPERTY()
+	UChunkSpawnManager* ChunkSpawnManager;
+	
+	
+	UPROPERTY()
+	AWorldGenerator* WorldGenerator;
 	
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
